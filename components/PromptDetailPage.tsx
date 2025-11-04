@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Prompt } from '../types';
 import {
   LovableHeartIcon, ChevronDownIcon, CopyIcon, ArrowLeftIcon, ClockIcon, CheckIcon
@@ -13,6 +13,28 @@ const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateB
   const [copyButtonText, setCopyButtonText] = useState('Copy Prompt');
   const [isSaved, setIsSaved] = useState(false);
 
+  // Function to safely retrieve prompts from localStorage
+  const getSavedPrompts = (): Prompt[] => {
+    try {
+      const saved = localStorage.getItem('savedPrompts');
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error("Failed to parse saved prompts:", error);
+      return [];
+    }
+  };
+
+  // Check if the prompt is already saved when the component mounts
+  useEffect(() => {
+    const savedPrompts = getSavedPrompts();
+    // Use title as a simple unique identifier
+    const alreadySaved = savedPrompts.some(p => p.title === prompt.title);
+    if (alreadySaved) {
+      setIsSaved(true);
+    }
+  }, [prompt.title]);
+
+
   const handleCopy = () => {
     navigator.clipboard.writeText(prompt.content.replace(/```markdown|```/g, '').trim());
     setCopyButtonText('Copied!');
@@ -20,8 +42,13 @@ const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateB
   };
 
   const handleSave = () => {
+    if (isSaved) return;
+
+    const savedPrompts = getSavedPrompts();
+    const newSavedPrompts = [...savedPrompts, prompt];
+    localStorage.setItem('savedPrompts', JSON.stringify(newSavedPrompts));
     setIsSaved(true);
-  }
+  };
 
   return (
     <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">

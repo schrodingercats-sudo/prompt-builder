@@ -7,12 +7,19 @@ import {
   LovableAiIcon, CursorIcon, VercelIcon, ReplitIcon, BoltIcon
 } from './Icons';
 
+type CreditsState = {
+  count: number;
+  resetTime: number | null;
+};
+
 interface DashboardProps {
   onLogout: () => void;
   initialPrompt: {
     text: string;
     image: { data: string; mimeType: string } | null;
   } | null;
+  credits: CreditsState;
+  onUseCredit: () => void;
 }
 
 const aiModels = [
@@ -23,7 +30,7 @@ const aiModels = [
     { name: 'Bolt AI', icon: BoltIcon },
 ];
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits, onUseCredit }) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,19 +63,24 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt }) => {
       setError("Please enter a prompt to optimize.");
       return;
     }
+    if (credits.count <= 0) {
+      setError("You are out of credits for today. They will reset soon.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setResult(null);
     try {
       const response = await optimizePrompt(prompt, [], image);
       setResult(response);
+      onUseCredit();
     } catch (e: any)
     {
       setError(e.message || "An unknown error occurred.");
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, image]);
+  }, [prompt, image, credits.count, onUseCredit]);
   
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -147,7 +159,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt }) => {
                 <div className="mt-6 flex justify-center">
                   <button 
                       onClick={handleGenerate}
-                      disabled={isLoading || !prompt.trim()}
+                      disabled={isLoading || !prompt.trim() || credits.count === 0}
                       className="bg-gray-800 text-white font-semibold px-6 py-3 rounded-lg shadow-sm transition-all flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:scale-105 enabled:hover:bg-gray-900">
                       {isLoading ? (
                       <>

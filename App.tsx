@@ -1,16 +1,23 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import LandingPage from './components/LandingPage';
 import Dashboard from './components/Dashboard';
 import CommunityPage from './components/CommunityPage';
+import MyPromptsPage from './components/MyPromptsPage';
 import PromptDetailPage from './components/PromptDetailPage';
 import Sidebar from './components/Sidebar';
 import { Prompt } from './types';
 import { LovableHeartIcon } from './components/Icons';
 
+type CreditsState = {
+  count: number;
+  resetTime: number | null;
+};
+
 type PageState =
   | { name: 'landing' }
   | { name: 'dashboard' }
   | { name: 'community' }
+  | { name: 'myPrompts' }
   | { name: 'promptDetail'; prompt: Prompt };
 
 type InitialPrompt = {
@@ -24,6 +31,41 @@ const App: React.FC = () => {
   const [initialPrompt, setInitialPrompt] = useState<InitialPrompt>(null);
   const [dashboardKey, setDashboardKey] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [credits, setCredits] = useState<CreditsState>({ count: 2, resetTime: null });
+
+  useEffect(() => {
+    try {
+      const savedCreditsRaw = localStorage.getItem('promptifyCredits');
+      if (savedCreditsRaw) {
+        const savedCredits = JSON.parse(savedCreditsRaw) as CreditsState;
+        if (savedCredits.resetTime && Date.now() > savedCredits.resetTime) {
+          const newCredits = { count: 2, resetTime: null };
+          localStorage.setItem('promptifyCredits', JSON.stringify(newCredits));
+          setCredits(newCredits);
+        } else {
+          setCredits(savedCredits);
+        }
+      } else {
+        localStorage.setItem('promptifyCredits', JSON.stringify({ count: 2, resetTime: null }));
+      }
+    } catch (error) {
+      console.error("Failed to manage credits in localStorage:", error);
+      setCredits({ count: 2, resetTime: null });
+    }
+  }, []);
+
+  const handleUseCredit = useCallback(() => {
+    setCredits(prevCredits => {
+      const newCount = Math.max(0, prevCredits.count - 1);
+      const newResetTime = newCount === 0 ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
+      const newCredits: CreditsState = {
+        count: newCount,
+        resetTime: newResetTime,
+      };
+      localStorage.setItem('promptifyCredits', JSON.stringify(newCredits));
+      return newCredits;
+    });
+  }, []);
 
   const handleStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
     setInitialPrompt({ text, image });
@@ -58,6 +100,8 @@ const App: React.FC = () => {
       setPage({ name: 'dashboard' });
     } else if (nav === 'Community') {
       setPage({ name: 'community' });
+    } else if (nav === 'My prompts') {
+      setPage({ name: 'myPrompts' });
     }
     setIsSidebarOpen(false);
   }, []);
@@ -69,13 +113,15 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (page.name) {
       case 'dashboard':
-        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} />;
+        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} credits={credits} onUseCredit={handleUseCredit} />;
       case 'community':
         return <CommunityPage onNavigateToLanding={handleNavigateToLanding} onSelectPrompt={handleSelectPrompt} />;
+      case 'myPrompts':
+        return <MyPromptsPage onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
       case 'promptDetail':
         return <PromptDetailPage prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
       default:
-        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} />;
+        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} credits={credits} onUseCredit={handleUseCredit} />;
     }
   };
 
@@ -87,6 +133,7 @@ const App: React.FC = () => {
         onNewPrompt={handleNewPrompt} 
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
+        credits={credits}
       />
       <main className="flex-1 relative overflow-y-auto">
         <div className="md:hidden p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-sm z-10">

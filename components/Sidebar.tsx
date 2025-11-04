@@ -1,8 +1,14 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  LovableHeartIcon, HomeIcon, FolderIcon, FlaskIcon, HelpIcon,
-  CreditCardIcon, SparklesIcon, PlusIcon, WarningIcon, ChevronDownIcon, GlobeIcon
+  LovableHeartIcon, HomeIcon, FolderIcon,
+  CreditCardIcon, SparklesIcon, PlusIcon, WarningIcon, ChevronDownIcon, GlobeIcon,
+  SettingsIcon, TrashIcon, ChevronUpIcon
 } from './Icons';
+
+type CreditsState = {
+  count: number;
+  resetTime: number | null;
+};
 
 interface SidebarProps {
   activeNav: string;
@@ -10,15 +16,61 @@ interface SidebarProps {
   onNewPrompt: () => void;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  credits: CreditsState;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen }) => {
-  const navItems = [
+const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits }) => {
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [timeRemaining, setTimeRemaining] = useState('');
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
+        setIsUserMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+  
+  useEffect(() => {
+    if (credits.count > 0 || !credits.resetTime) {
+      setTimeRemaining('');
+      return;
+    }
+
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const distance = credits.resetTime! - now;
+
+      if (distance < 0) {
+        setTimeRemaining('Resetting credits...');
+        clearInterval(intervalId);
+        setTimeout(() => window.location.reload(), 1500); // Reload to get new credits
+        return;
+      }
+
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+      setTimeRemaining(`${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [credits.count, credits.resetTime]);
+
+  const navItems: { name: string; icon: React.ReactElement; tag?: string }[] = [
     { name: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
     { name: 'My prompts', icon: <FolderIcon className="h-5 w-5" /> },
     { name: 'Community', icon: <GlobeIcon className="h-5 w-5" /> },
-    { name: 'Lab', icon: <FlaskIcon className="h-5 w-5" />, tag: 'Upgrade' },
-    { name: 'Help', icon: <HelpIcon className="h-5 w-5" /> },
+  ];
+
+  const userMenuItems = [
+    { name: 'Settings', icon: <SettingsIcon className="h-5 w-5" /> },
+    { name: 'Dashboard', icon: <CreditCardIcon className="h-5 w-5" /> },
+    { name: 'Delete Account', icon: <TrashIcon className="h-5 w-5" />, isDestructive: true },
   ];
 
   return (
@@ -79,35 +131,57 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
             <div className="mt-3">
               <div className="flex justify-between text-xs text-gray-500 mb-1">
                 <span>Credits</span>
-                <span>2 / 2</span>
+                <span>{credits.count} / 2</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div className="bg-yellow-500 h-1.5 rounded-full" style={{width: '100%'}}></div>
+                <div className="bg-yellow-500 h-1.5 rounded-full" style={{width: `${(credits.count / 2) * 100}%`}}></div>
               </div>
             </div>
-            <div className="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-md text-xs text-yellow-800 flex items-start gap-2">
-              <WarningIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="font-bold">Low credits</p>
-                <p>Only 2 credits remaining.</p>
+            {credits.count <= 1 && (
+              <div className="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-md text-xs text-yellow-800 flex items-start gap-2">
+                <WarningIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  {credits.count === 1 && (
+                    <>
+                      <p className="font-bold">Low credits</p>
+                      <p>Only 1 credit remaining.</p>
+                    </>
+                  )}
+                  {credits.count === 0 && (
+                    <>
+                      <p className="font-bold">No credits left</p>
+                      <p>Resets in: {timeRemaining}</p>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
-            <button className="w-full mt-3 bg-[#7C3AED] text-white font-semibold py-2 rounded-lg hover:bg-purple-700 transition-colors text-sm flex items-center justify-center gap-2">
-              <SparklesIcon className="h-4 w-4"/>
-              Get 100 prompts
-            </button>
+            )}
           </div>
 
-          <div className="flex items-center justify-between p-1">
-             <div className="flex items-center gap-2">
-              <img src={`https://i.pravatar.cc/40?u=pratham.solanki30`} alt="User avatar" className="rounded-full w-8 h-8" />
-              <div>
-                  <p className="font-semibold text-sm">pratham.solanki30</p>
-                  <p className="text-xs text-gray-500">pratham.solanki30@...</p>
+          <div ref={userMenuRef} className="relative">
+             {isUserMenuOpen && (
+              <div className="absolute bottom-full mb-2 w-full bg-white rounded-lg shadow-lg border animate-fade-in-up z-20">
+                <div className="p-2">
+                  {userMenuItems.map(item => (
+                    <button key={item.name} className={`w-full flex items-center gap-3 p-2 text-sm rounded-md transition-colors ${item.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
+                      {item.icon}
+                      <span>{item.name}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            <button className="text-gray-500 hover:text-gray-800">
-              <ChevronDownIcon className="h-5 w-5" />
+            )}
+            <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 transition-colors">
+               <div className="flex items-center gap-2">
+                <img src={`https://i.pravatar.cc/40?u=pratham.solanki30`} alt="User avatar" className="rounded-full w-8 h-8" />
+                <div>
+                    <p className="font-semibold text-sm text-left">pratham.solanki30</p>
+                    <p className="text-xs text-gray-500 text-left">pratham.solanki30@...</p>
+                </div>
+              </div>
+              <div className="text-gray-500 hover:text-gray-800">
+                {isUserMenuOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
+              </div>
             </button>
           </div>
         </div>
