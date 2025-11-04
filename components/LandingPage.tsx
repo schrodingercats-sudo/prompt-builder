@@ -3,7 +3,7 @@ import { Prompt } from '../types';
 import { LovableHeartIcon, LovableAiIcon, VercelIcon, ReplitIcon, CursorIcon, BoltIcon, ImageIcon, ArrowRightIcon, GithubIcon, GoogleIcon, GridIcon, CalendarIcon, GlobeIcon, CopyIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, CloseIcon, HeartIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon } from './Icons';
 
 interface LandingPageProps {
-  onLogin: () => void;
+  onStart: (promptText: string, image: { data: string; mimeType: string } | null) => void;
   onNavigateToCommunity: () => void;
   onSelectPrompt: (prompt: Prompt) => void;
 }
@@ -63,25 +63,46 @@ const CommunityPromptCard: React.FC<{
 const ComparisonSlider: React.FC = () => {
   const [sliderPosition, setSliderPosition] = useState(50);
   const containerRef = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
 
   const handleMove = (clientX: number) => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || !isDragging.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
     const percent = Math.max(0, Math.min((x / rect.width) * 100, 100));
     setSliderPosition(percent);
   };
-
+  
+  const startDragging = () => { isDragging.current = true; };
+  const stopDragging = () => { isDragging.current = false; };
+  
   const handleTouchMove = (e: React.TouchEvent) => handleMove(e.touches[0].clientX);
   const handleMouseMove = (e: React.MouseEvent) => handleMove(e.clientX);
 
+
+  useEffect(() => {
+    window.addEventListener('mouseup', stopDragging);
+    window.addEventListener('touchend', stopDragging);
+    return () => {
+      window.removeEventListener('mouseup', stopDragging);
+      window.removeEventListener('touchend', stopDragging);
+    };
+  }, []);
+
   return (
-    <div ref={containerRef} className="relative w-full max-w-4xl mx-auto aspect-[16/10] rounded-2xl overflow-hidden cursor-e-resize select-none shadow-2xl border-4 border-white/50" onMouseMove={handleMouseMove} onTouchMove={handleTouchMove}>
+    <div 
+        ref={containerRef} 
+        className="relative w-full max-w-4xl mx-auto aspect-[16/10] rounded-2xl overflow-hidden cursor-e-resize select-none shadow-2xl border-4 border-white/50" 
+        onMouseDown={startDragging}
+        onMouseMove={handleMouseMove}
+        onTouchStart={startDragging}
+        onTouchMove={handleTouchMove}
+    >
       <img src="https://placehold.co/1280x800/e2e8f0/475569?text=Without+Promptify" alt="Without Promptify" className="absolute inset-0 w-full h-full object-cover" draggable="false" />
       <div className="absolute inset-0 w-full h-full overflow-hidden" style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}>
         <img src="https://placehold.co/1280x800/c4b5fd/4c1d95?text=With+Promptify" alt="With Promptify" className="absolute inset-0 w-full h-full object-cover" draggable="false" />
       </div>
-      <div className="absolute top-0 bottom-0 bg-white w-1.5 cursor-ew-resize" style={{ left: `calc(${sliderPosition}% - 3px)` }}>
+      <div className="absolute top-0 bottom-0 bg-white w-1.5 cursor-ew-resize pointer-events-none" style={{ left: `calc(${sliderPosition}% - 3px)` }}>
         <div className="absolute top-1/2 -translate-y-1/2 -left-5 bg-white h-12 w-12 rounded-full flex items-center justify-center shadow-lg border-2 border-gray-200">
           <svg className="w-6 h-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" /></svg>
         </div>
@@ -144,7 +165,7 @@ const BrandCarousel: React.FC = () => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onNavigateToCommunity, onSelectPrompt }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onStart, onNavigateToCommunity, onSelectPrompt }) => {
     const aiModels = [
         { name: 'Lovable AI', icon: LovableAiIcon },
         { name: 'Cursor AI', icon: CursorIcon },
@@ -152,10 +173,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onNavigateToCommunit
         { name: 'Replit AI', icon: ReplitIcon },
         { name: 'Bolt AI', icon: BoltIcon },
     ];
+    const [promptText, setPromptText] = useState('');
     const [selectedModel, setSelectedModel] = useState(aiModels[0]);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(null);
+    const [image, setImage] = useState<{ data: string; mimeType: string; preview: string; } | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -175,18 +197,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onLogin, onNavigateToCommunit
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                setImagePreview(reader.result as string);
+                const fullDataUrl = reader.result as string;
+                const base64String = fullDataUrl.split(',')[1];
+                setImage({ data: base64String, mimeType: file.type, preview: fullDataUrl });
             };
             reader.readAsDataURL(file);
         }
     };
 
     const removeImage = () => {
-        setImagePreview(null);
+        setImage(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = "";
         }
     };
+    
+    const handleStart = () => {
+        const imageData = image ? { data: image.data, mimeType: image.mimeType } : null;
+        onStart(promptText, imageData);
+    }
 
     const tinderPromptContent = `
 \`\`\`markdown
@@ -258,7 +287,7 @@ Users begin their journey with a welcoming landing page that guides them through
     <div className="min-h-screen w-full bg-[#f8fafc] text-[#1E1E1E] font-sans">
       <div className="absolute inset-0 z-0" style={{ backgroundImage: `linear-gradient(135deg, rgba(248,250,252,1) 0%, rgba(219,234,254,0.7) 30%, rgba(165,180,252,0.5) 60%, rgba(129,140,248,0.6) 100%), radial-gradient(circle at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(199,210,254,0.4) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(224,231,255,0.3) 0%, transparent 60%)` }}/>
 
-      <div className="relative z-10 px-6 container mx-auto">
+      <div className="relative z-10 px-4 sm:px-6 container mx-auto">
         <header className="py-4">
             <nav className="flex items-center justify-between bg-white/50 backdrop-blur-lg p-3 rounded-full border border-white/80 shadow-sm">
                 <a href="#" className="flex items-center gap-2">
@@ -272,40 +301,42 @@ Users begin their journey with a welcoming landing page that guides them through
                     <a href="#faq" className="hover:text-purple-600 transition-colors">FAQ's</a>
                 </div>
                 <div className="flex items-center gap-2">
-                     <button onClick={onLogin} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
+                     <button onClick={() => onStart('', null)} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
                 </div>
             </nav>
         </header>
 
         <main>
           {/* Hero Section */}
-          <section id="home" className="text-center py-20 md:py-32">
-            <h1 className="text-5xl md:text-7xl font-bold font-serif text-gray-900 leading-tight">Build faster with us.</h1>
-            <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto">Turn simple ideas into detailed specifications effortlessly. Stop guessing, start building.</p>
+          <section id="home" className="text-center py-16 md:py-32">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-serif text-gray-900 leading-tight">Build faster with us.</h1>
+            <p className="mt-6 text-base md:text-lg text-gray-600 max-w-2xl mx-auto">Turn simple ideas into detailed specifications effortlessly. Stop guessing, start building.</p>
             
             <div className="mt-12 w-full max-w-3xl mx-auto bg-white rounded-2xl shadow-2xl border border-gray-200/50 p-4">
                 <div className="relative">
-                    {imagePreview && (
+                    {image?.preview && (
                         <div className="relative mb-2">
-                            <img src={imagePreview} alt="Preview" className="w-24 h-24 object-cover rounded-lg" />
+                            <img src={image.preview} alt="Preview" className="w-24 h-24 object-cover rounded-lg" />
                             <button onClick={removeImage} className="absolute -top-2 -right-2 bg-gray-700 text-white rounded-full p-1 shadow-md hover:bg-gray-900">
                                 <CloseIcon className="h-4 w-4" />
                             </button>
                         </div>
                     )}
                     <textarea
+                        value={promptText}
+                        onChange={(e) => setPromptText(e.target.value)}
                         placeholder="e.g., A modern dashboard with charts and a data table"
                         className="w-full h-28 p-4 text-base text-gray-800 placeholder-gray-400 border-none resize-none focus:ring-0 bg-transparent"
                     />
                 </div>
-                <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-                    <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row items-center justify-between pt-2 border-t border-gray-100 gap-3 sm:gap-0">
+                    <div className="w-full sm:w-auto">
                         <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                         <button onClick={triggerFileSelect} className="p-2 text-gray-500 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors" aria-label="Upload image">
                             <ImageIcon className="h-6 w-6"/>
                         </button>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
                         <div ref={dropdownRef} className="relative">
                             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100">
                                 <selectedModel.icon className="h-5 w-5" />
@@ -313,7 +344,7 @@ Users begin their journey with a welcoming landing page that guides them through
                                 <ChevronDownIcon className="h-4 w-4 text-gray-500" />
                             </button>
                             {dropdownOpen && (
-                                <div className="absolute bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg border animate-fade-in-up">
+                                <div className="absolute bottom-full mb-2 w-48 bg-white rounded-lg shadow-lg border animate-fade-in-up z-20">
                                     {aiModels.map(model => (
                                         <button key={model.name} onClick={() => { setSelectedModel(model); setDropdownOpen(false); }} className="w-full flex items-center gap-3 p-3 text-sm hover:bg-gray-50">
                                             <model.icon className="h-5 w-5" />
@@ -323,7 +354,7 @@ Users begin their journey with a welcoming landing page that guides them through
                                 </div>
                             )}
                         </div>
-                        <button onClick={onLogin} className="bg-gray-800 text-white p-2.5 rounded-lg shadow-sm hover:bg-gray-900 transition-transform transform hover:scale-105" aria-label="Generate prompt">
+                        <button onClick={handleStart} className="bg-gray-800 text-white p-2.5 rounded-lg shadow-sm hover:bg-gray-900 transition-transform transform hover:scale-105" aria-label="Generate prompt">
                             <ArrowRightIcon className="h-6 w-6"/>
                         </button>
                     </div>
@@ -338,9 +369,9 @@ Users begin their journey with a welcoming landing page that guides them through
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center">
                     <span className="bg-gray-100 text-gray-600 font-medium px-4 py-1.5 rounded-full text-sm">Community</span>
-                    <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900 mt-4">Discover prompts created by our community</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold font-serif text-gray-900 mt-4">Discover prompts created by our community</h2>
                 </div>
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                     {communityPrompts.map((p, i) => <CommunityPromptCard key={`${p.title}-${i}`} prompt={p} onSelect={() => onSelectPrompt(p)} />)}
                 </div>
                 <div className="mt-12 text-center">
@@ -354,11 +385,11 @@ Users begin their journey with a welcoming landing page that guides them through
 
           {/* How It Works */}
           <section id="how-it-works" className="py-24 bg-white/50 backdrop-blur-lg rounded-3xl my-12">
-            <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900">How it works</h2>
-                <p className="mt-4 text-lg text-gray-600">A simple, three-step process to perfection.</p>
+            <div className="text-center px-4">
+                <h2 className="text-3xl md:text-5xl font-bold font-serif text-gray-900">How it works</h2>
+                <p className="mt-4 text-base md:text-lg text-gray-600">A simple, three-step process to perfection.</p>
             </div>
-            <div className="mt-16 grid md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto">
+            <div className="mt-16 grid md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto px-4">
                 <div className="p-6">
                     <div className="flex items-center justify-center h-16 w-16 bg-purple-100 text-purple-600 rounded-2xl text-2xl font-bold mx-auto">1</div>
                     <h3 className="mt-6 text-xl font-semibold text-gray-800">Generate prompt</h3>
@@ -378,10 +409,10 @@ Users begin their journey with a welcoming landing page that guides them through
           </section>
 
           {/* Comparison */}
-          <section className="py-24">
+          <section className="py-24 px-4">
             <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900">Without vs. With our tool</h2>
-                <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">Same idea, two very different results. Compare an app built with a raw prompt vs. one optimized by Promptify. Drag the slider to see the transformation.</p>
+                <h2 className="text-3xl md:text-5xl font-bold font-serif text-gray-900">Without vs. With our tool</h2>
+                <p className="mt-4 text-base md:text-lg text-gray-600 max-w-3xl mx-auto">Same idea, two very different results. Compare an app built with a raw prompt vs. one optimized by Promptify. Drag the slider to see the transformation.</p>
             </div>
             <div className="mt-12">
               <ComparisonSlider />
@@ -389,12 +420,12 @@ Users begin their journey with a welcoming landing page that guides them through
           </section>
 
           {/* Pricing */}
-          <section id="pricing" className="py-24">
+          <section id="pricing" className="py-24 px-4">
              <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900">Pricing</h2>
-                <p className="mt-4 text-lg text-gray-600">Choose the plan that's right for you.</p>
+                <h2 className="text-3xl md:text-5xl font-bold font-serif text-gray-900">Pricing</h2>
+                <p className="mt-4 text-base md:text-lg text-gray-600">Choose the plan that's right for you.</p>
             </div>
-            <div className="mt-16 max-w-4xl mx-auto grid md:grid-cols-2 gap-8 items-center">
+            <div className="mt-16 max-w-4xl mx-auto grid md:grid-cols-2 gap-y-10 md:gap-8 items-center">
                 <div className="bg-white/60 backdrop-blur-sm border border-gray-200/50 rounded-2xl p-8 shadow-lg">
                     <h3 className="text-2xl font-bold">Free</h3>
                     <p className="mt-2 text-gray-600">For trying out the basics</p>
@@ -404,9 +435,9 @@ Users begin their journey with a welcoming landing page that guides them through
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-500" /> Standard optimization</li>
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-500" /> Public prompts only</li>
                     </ul>
-                    <button onClick={onLogin} className="mt-8 w-full bg-white text-gray-800 font-semibold py-3 rounded-lg shadow-md border border-gray-200/80 hover:bg-gray-50">Get started</button>
+                    <button onClick={() => onStart('', null)} className="mt-8 w-full bg-white text-gray-800 font-semibold py-3 rounded-lg shadow-md border border-gray-200/80 hover:bg-gray-50">Get started</button>
                 </div>
-                <div className="bg-gray-800 text-white border-purple-400 border-2 rounded-2xl p-8 shadow-2xl scale-105">
+                <div className="bg-gray-800 text-white border-purple-400 border-2 rounded-2xl p-8 shadow-2xl md:scale-105">
                      <p className="text-center font-semibold bg-purple-500 text-white py-1 px-3 rounded-full w-fit mx-auto text-sm">Most Popular</p>
                     <h3 className="text-2xl font-bold mt-4">Pro</h3>
                     <p className="mt-2 text-gray-300">For serious builders</p>
@@ -417,15 +448,15 @@ Users begin their journey with a welcoming landing page that guides them through
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> Private prompts</li>
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> Priority support</li>
                     </ul>
-                    <button onClick={onLogin} className="mt-8 w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-purple-700">Go Pro</button>
+                    <button onClick={() => onStart('', null)} className="mt-8 w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-purple-700">Go Pro</button>
                 </div>
             </div>
           </section>
 
           {/* FAQ */}
-          <section id="faq" className="py-24 max-w-3xl mx-auto">
+          <section id="faq" className="py-24 max-w-3xl mx-auto px-4">
             <div className="text-center">
-                <h2 className="text-4xl md:text-5xl font-bold font-serif text-gray-900">Frequently Asked Questions</h2>
+                <h2 className="text-3xl md:text-5xl font-bold font-serif text-gray-900">Frequently Asked Questions</h2>
             </div>
             <div className="mt-12">
                 {faqs.map(faq => <FAQItem key={faq.q} {...faq} />)}
@@ -433,18 +464,18 @@ Users begin their journey with a welcoming landing page that guides them through
           </section>
         </main>
 
-        <footer className="py-12 border-t border-gray-200/50 mt-16">
+        <footer className="py-12 border-t border-gray-200/50 mt-16 px-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                  <a href="#" className="flex items-center gap-2">
                     <LovableHeartIcon className="h-8 w-8" />
                     <span className="font-bold text-xl text-gray-800">Promptify</span>
                 </a>
-                <div className="flex items-center gap-8 font-medium text-gray-600">
+                <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 font-medium text-gray-600">
                     <a href="#how-it-works" className="hover:text-purple-600">How it works</a>
                     <a href="#pricing" className="hover:text-purple-600">Pricing</a>
                     <a href="#faq" className="hover:text-purple-600">FAQ's</a>
                 </div>
-                <p className="text-gray-500">&copy; 2024 Promptify. All rights reserved.</p>
+                <p className="text-gray-500 text-center sm:text-left">&copy; 2024 Promptify. All rights reserved.</p>
             </div>
         </footer>
 

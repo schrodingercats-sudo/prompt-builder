@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Prompt } from '../types';
 import {
-  LovableHeartIcon, ChevronDownIcon, CalendarIcon, GlobeIcon, CopyIcon, LovableAiIcon,
-  SearchIcon, FilterIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon, SparklesIcon
+  LovableHeartIcon, ChevronDownIcon, CalendarIcon, GlobeIcon, CopyIcon, LovableAiIcon, CursorIcon, VercelIcon,
+  SearchIcon, FilterIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon, SparklesIcon, ReplitIcon, BoltIcon
 } from './Icons';
 
 interface CommunityPageProps {
@@ -59,20 +59,20 @@ Users begin their journey with a welcoming landing page that guides them through
 
 const allPrompts: Prompt[] = [
     { title: 'Build a web application called Script Studio', optimizedFor: 'Lovable', timeAgo: '1h ago', Icon: LovableAiIcon, CardIcon: ShoppingCartIcon, tags: ['lovable', 'productivity', 'writing'], content: '## APPLICATION OVERVIEW\nScript Studio is a collaborative screenwriting tool...' },
-    { title: 'Create a management dashboard application that', optimizedFor: 'Lovable', timeAgo: '4h ago', Icon: LovableAiIcon, CardIcon: ShoppingCartIcon, tags: ['lovable', 'dashboard', 'data'], content: '## APPLICATION OVERVIEW\nAn analytics dashboard for business intelligence...' },
-    { title: '3. Dashboard de Performance Multicanal', optimizedFor: 'Lovable', timeAgo: '4h ago', Icon: LovableAiIcon, CardIcon: ChartBarIcon, tags: ['lovable', 'analytics'], content: '## APPLICATION OVERVIEW\nDashboard for multichannel performance tracking...' },
-    { title: 'Crie um app de delivery de comida conectando restaurantes e clientes,...', optimizedFor: 'Lovable', timeAgo: '5h ago', Icon: LovableAiIcon, CardIcon: VideoCameraIcon, tags: ['lovable', 'food-delivery', 'mobile'], content: '## APPLICATION OVERVIEW\nA food delivery app connecting restaurants and customers...' },
+    { title: 'Create a management dashboard for a SaaS product', optimizedFor: 'Cursor', timeAgo: '4h ago', Icon: CursorIcon, CardIcon: ShoppingCartIcon, tags: ['cursor', 'dashboard', 'data'], content: '## APPLICATION OVERVIEW\nAn analytics dashboard for business intelligence...' },
+    { title: 'Dashboard de Performance Multicanal', optimizedFor: 'v0 (Vercel)', timeAgo: '4h ago', Icon: VercelIcon, CardIcon: ChartBarIcon, tags: ['v0', 'analytics'], content: '## APPLICATION OVERVIEW\nDashboard for multichannel performance tracking...' },
+    { title: 'Crie um app de delivery de comida conectando restaurantes e clientes,...', optimizedFor: 'Replit', timeAgo: '5h ago', Icon: ReplitIcon, CardIcon: VideoCameraIcon, tags: ['replit', 'food-delivery', 'mobile'], content: '## APPLICATION OVERVIEW\nA food delivery app connecting restaurants and customers...' },
     { title: 'Um app de delivery de comida conectando restaurantes e clientes,...', optimizedFor: 'Lovable', timeAgo: '5h ago', Icon: LovableAiIcon, CardIcon: VideoCameraIcon, tags: ['lovable', 'food-delivery', 'mobile'], content: '## APPLICATION OVERVIEW\nA food delivery app connecting restaurants and customers...' },
-    { title: 'DESIGN + UI SPEC (Tinder-style with', optimizedFor: 'Lovable', timeAgo: '5h ago', Icon: LovableAiIcon, CardIcon: ChatBubbleIcon, tags: ['lovable', 'Enhanced', 'minimalist', 'light mode'], content: tinderPromptContent },
-    { title: 'Ok je veux je veux que chaque utilisateur...', optimizedFor: 'Lovable', timeAgo: '6h ago', Icon: LovableAiIcon, CardIcon: ChatBubbleIcon, tags: ['lovable', 'social'], content: '## APPLICATION OVERVIEW\nA social media application...' },
-    { title: 'Necesito armar un sistema para una empresa de catering llamada...', optimizedFor: 'Lovable', timeAgo: '6h ago', Icon: LovableAiIcon, CardIcon: ShoppingCartIcon, tags: ['lovable', 'business', 'management'], content: '## APPLICATION OVERVIEW\nA catering management system...' },
+    { title: 'DESIGN + UI SPEC (Tinder-style with)', optimizedFor: 'Bolt', timeAgo: '5h ago', Icon: BoltIcon, CardIcon: ChatBubbleIcon, tags: ['bolt', 'Enhanced', 'minimalist', 'light mode'], content: tinderPromptContent },
+    { title: 'Ok je veux je veux que chaque utilisateur...', optimizedFor: 'v0 (Vercel)', timeAgo: '6h ago', Icon: VercelIcon, CardIcon: ChatBubbleIcon, tags: ['v0', 'social'], content: '## APPLICATION OVERVIEW\nA social media application...' },
+    { title: 'Necesito armar un sistema para una empresa de catering llamada...', optimizedFor: 'Cursor', timeAgo: '6h ago', Icon: CursorIcon, CardIcon: ShoppingCartIcon, tags: ['cursor', 'business', 'management'], content: '## APPLICATION OVERVIEW\nA catering management system...' },
     { title: 'Crie um app que será responsável por gerar hashtags com ia para...', optimizedFor: 'Lovable', timeAgo: '7h ago', Icon: LovableAiIcon, CardIcon: ChatBubbleIcon, tags: ['lovable', 'social-media', 'ai'], content: '## APPLICATION OVERVIEW\nAn AI-powered hashtag generator...' },
     { title: 'A test automation environment for my existing DanRyanDistribution...', optimizedFor: 'Lovable', timeAgo: '7h ago', Icon: LovableAiIcon, CardIcon: ChartBarIcon, tags: ['lovable', 'testing', 'automation'], content: '## APPLICATION OVERVIEW\nA test automation environment...' },
-    { title: 'Build a coin flip gambling website with', optimizedFor: 'Lovable', timeAgo: '8h ago', Icon: LovableAiIcon, CardIcon: ShoppingCartIcon, tags: ['lovable', 'game', 'web3'], content: '## APPLICATION OVERVIEW\nA coin flip gambling website...' },
+    { title: 'Build a coin flip gambling website with', optimizedFor: 'Cursor', timeAgo: '8h ago', Icon: CursorIcon, CardIcon: ShoppingCartIcon, tags: ['cursor', 'game', 'web3'], content: '## APPLICATION OVERVIEW\nA coin flip gambling website...' },
     { title: 'Crie um aplicativo onde vai mostra que tenho 2 ingressos disponiveis...', optimizedFor: 'Lovable', timeAgo: '9h ago', Icon: LovableAiIcon, CardIcon: SparklesIcon, tags: ['lovable', 'ticketing'], content: '## APPLICATION OVERVIEW\nA ticket management application...' },
-    { title: 'Generate a marketing website for a SaaS product', optimizedFor: 'Lovable', timeAgo: '10h ago', Icon: LovableAiIcon, CardIcon: ShoppingCartIcon, tags: ['lovable', 'marketing', 'saas'], content: '## APPLICATION OVERVIEW\nA marketing website for a SaaS product...' },
+    { title: 'Generate a marketing website for a SaaS product', optimizedFor: 'v0 (Vercel)', timeAgo: '10h ago', Icon: VercelIcon, CardIcon: ShoppingCartIcon, tags: ['v0', 'marketing', 'saas'], content: '## APPLICATION OVERVIEW\nA marketing website for a SaaS product...' },
     { title: 'Build a simple blog with posts and comments', optimizedFor: 'Lovable', timeAgo: '11h ago', Icon: LovableAiIcon, CardIcon: ChatBubbleIcon, tags: ['lovable', 'blog', 'content'], content: '## APPLICATION OVERVIEW\nA simple blog with posts and comments...' },
-    { title: 'Create a weather application with a 5-day forecast', optimizedFor: 'Lovable', timeAgo: '12h ago', Icon: LovableAiIcon, CardIcon: ChartBarIcon, tags: ['lovable', 'weather', 'api'], content: '## APPLICATION OVERVIEW\nA weather application with a 5-day forecast...' },
+    { title: 'Create a weather application with a 5-day forecast', optimizedFor: 'Cursor', timeAgo: '12h ago', Icon: CursorIcon, CardIcon: ChartBarIcon, tags: ['cursor', 'weather', 'api'], content: '## APPLICATION OVERVIEW\nA weather application with a 5-day forecast...' },
 ];
 
 
@@ -131,109 +131,68 @@ const PromptCard: React.FC<{
 
 
 const CommunityPage: React.FC<CommunityPageProps> = ({ onNavigateToLanding, onSelectPrompt }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const promptsPerPage = 12;
-  const totalPages = Math.ceil(allPrompts.length / promptsPerPage);
-  
-  const currentPrompts = allPrompts.slice(
-    (currentPage - 1) * promptsPerPage,
-    currentPage * promptsPerPage
-  );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [platformFilter, setPlatformFilter] = useState('All Platforms');
+  const [showFilters, setShowFilters] = useState(false);
+
+  const filteredPrompts = useMemo(() => {
+    return allPrompts.filter(prompt => {
+      const matchesSearch = prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) || prompt.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchesPlatform = platformFilter === 'All Platforms' || prompt.optimizedFor === platformFilter;
+      return matchesSearch && matchesPlatform;
+    });
+  }, [searchQuery, platformFilter]);
+
 
   return (
-    <div className="min-h-screen w-full font-sans">
-      <div className="relative z-10 px-6 container mx-auto">
-        <header className="py-4">
-          <nav className="flex items-center justify-between bg-white/60 backdrop-blur-sm p-3 rounded-full border border-gray-200/50 shadow-sm">
-            <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToLanding(); }} className="flex items-center gap-2">
-              <LovableHeartIcon className="h-8 w-8" />
-              <span className="font-bold text-xl text-gray-800">Promptify</span>
-            </a>
-            <div className="hidden md:flex items-center gap-8 font-medium text-gray-600">
-              <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToLanding(); }} className="hover:text-purple-600 transition-colors">Home</a>
-              <a href="#" className="hover:text-purple-600 transition-colors">How it works</a>
-              <a href="#" className="hover:text-purple-600 transition-colors">Pricing</a>
-              <a href="#" className="hover:text-purple-600 transition-colors">FAQ's</a>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 p-1.5 pr-3 bg-white border border-gray-200/80 rounded-full shadow-sm">
-                <img src="https://i.pravatar.cc/40?u=pratham.solanki30" alt="User" className="h-8 w-8 rounded-full" />
-                <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-              </button>
-            </div>
-          </nav>
-        </header>
-
-        <main className="py-16">
-          <div className="text-center max-w-4xl mx-auto">
-            <h1 className="text-5xl md:text-7xl font-bold font-serif text-gray-900 leading-tight">Discover and use prompts created by our community</h1>
-            <p className="mt-6 text-lg text-gray-600">All prompts are public and ready to use in your projects.</p>
-          </div>
-          
-          <div className="mt-12 max-w-6xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center gap-4">
-              <div className="relative w-full flex-grow">
-                <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                <input type="text" placeholder="Search prompts..." className="w-full pl-12 pr-4 py-3 bg-white text-base border border-gray-200/80 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none" />
-              </div>
-              <div className="flex items-center gap-4 w-full md:w-auto">
-                <button className="p-3 bg-white border border-gray-200/80 rounded-xl shadow-sm">
-                  <FilterIcon className="h-5 w-5 text-gray-500" />
-                </button>
-                <div className="relative flex-grow">
-                   <select className="w-full appearance-none bg-white border border-gray-200/80 rounded-xl shadow-sm px-4 py-3 pr-10 text-base font-medium text-gray-700 focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none">
-                     <option>All Platforms</option>
-                     <option>Lovable</option>
-                     <option>Cursor</option>
-                     <option>Vercel v0</option>
-                   </select>
-                   <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"/>
-                </div>
-                 <span className="text-gray-500 font-medium whitespace-nowrap">{allPrompts.length} prompts</span>
-              </div>
-            </div>
-
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-              {currentPrompts.map((p, i) => <PromptCard key={`${p.title}-${i}`} prompt={p} onSelect={() => onSelectPrompt(p)} />)}
-            </div>
-            
-            <div className="mt-12 flex justify-center items-center gap-2">
-                <button 
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))} 
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md shadow-sm disabled:opacity-50"
-                >
-                  Previous
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(pageNumber => (
-                    <button 
-                      key={pageNumber} 
-                      onClick={() => setCurrentPage(pageNumber)}
-                      className={`w-10 h-10 text-sm font-medium rounded-md ${currentPage === pageNumber ? 'bg-orange-500 text-white shadow-md' : 'bg-white border border-gray-300'}`}
-                    >
-                        {pageNumber}
-                    </button>
-                ))}
-                <button 
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} 
-                  disabled={currentPage === totalPages}
-                  className="px-4 py-2 text-sm font-medium bg-white border border-gray-300 rounded-md shadow-sm disabled:opacity-50"
-                >
-                  Next
-                </button>
-            </div>
-          </div>
-        </main>
+    <div className="p-4 md:p-8">
+      <div className="text-center max-w-4xl mx-auto">
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold font-serif text-gray-900 leading-tight">Community Prompts</h1>
+        <p className="mt-6 text-base md:text-lg text-gray-600">Discover and use prompts created by our community. All prompts are public and ready to use in your projects.</p>
       </div>
-      <footer className="py-8 mt-16 border-t border-gray-200/80">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center text-sm text-gray-600">
-            <p>Built with <span className="text-red-500">♡</span>, flow, and a lot of vibecoding by David Martín Suárez</p>
-            <div className="flex gap-6 mt-4 md:mt-0">
-                <a href="#" onClick={(e) => { e.preventDefault(); onNavigateToLanding(); }} className="hover:text-gray-900">Home</a>
-                <a href="#" className="hover:text-gray-900">Terms & Privacy</a>
+      
+      <div className="mt-12 max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="relative w-full flex-grow">
+            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search prompts..." 
+              className="w-full pl-12 pr-4 py-3 bg-white text-base border border-gray-200/80 rounded-xl shadow-sm focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          <div className="flex items-center gap-4 w-full md:w-auto">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className="p-3 bg-white border border-gray-200/80 rounded-xl shadow-sm hover:bg-gray-50 transition-colors"
+            >
+              <FilterIcon className="h-5 w-5 text-gray-500" />
+            </button>
+            <div className="relative flex-grow">
+                <select 
+                  className="w-full appearance-none bg-white border border-gray-200/80 rounded-xl shadow-sm px-4 py-3 pr-10 text-base font-medium text-gray-700 focus:ring-2 focus:ring-purple-300 focus:border-purple-400 outline-none"
+                  value={platformFilter}
+                  onChange={(e) => setPlatformFilter(e.target.value)}
+                >
+                  <option>All Platforms</option>
+                  <option>Lovable</option>
+                  <option>Cursor</option>
+                  <option>v0 (Vercel)</option>
+                  <option>Replit</option>
+                  <option>Bolt</option>
+                </select>
+                <ChevronDownIcon className="h-5 w-5 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"/>
             </div>
+              <span className="text-gray-500 font-medium whitespace-nowrap">{filteredPrompts.length} prompts</span>
+          </div>
         </div>
-      </footer>
+
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredPrompts.map((p, i) => <PromptCard key={`${p.title}-${i}`} prompt={p} onSelect={() => onSelectPrompt(p)} />)}
+        </div>
+      </div>
     </div>
   );
 };
