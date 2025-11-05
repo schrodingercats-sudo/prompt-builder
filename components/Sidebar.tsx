@@ -24,6 +24,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [timeRemaining, setTimeRemaining] = useState('');
 
+  const isUnlimited = credits.count === Infinity;
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(event.target as Node)) {
@@ -35,7 +37,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
   }, []);
   
   useEffect(() => {
-    if (credits.count > 0 || !credits.resetTime) {
+    if (isUnlimited || credits.count > 0 || !credits.resetTime) {
       setTimeRemaining('');
       return;
     }
@@ -59,7 +61,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, [credits.count, credits.resetTime]);
+  }, [credits.count, credits.resetTime, isUnlimited]);
 
   const navItems: { name: string; icon: React.ReactElement; tag?: string }[] = [
     { name: 'Home', icon: <HomeIcon className="h-5 w-5" /> },
@@ -125,19 +127,19 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
         <div className="space-y-4">
           <div className="p-4 bg-white rounded-lg border border-gray-200">
             <div className="flex justify-between items-center text-sm font-medium">
-              <span>Free Plan</span>
+              <span>{isUnlimited ? 'Admin Plan' : 'Free Plan'}</span>
               <CreditCardIcon className="h-5 w-5 text-gray-400" />
             </div>
             <div className="mt-3">
               <div className="flex justify-between text-xs text-gray-500 mb-1">
                 <span>Credits</span>
-                <span>{credits.count} / 2</span>
+                <span>{isUnlimited ? 'Unlimited' : `${credits.count} / 2`}</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-1.5">
-                <div className="bg-yellow-500 h-1.5 rounded-full" style={{width: `${(credits.count / 2) * 100}%`}}></div>
+                <div className="bg-yellow-500 h-1.5 rounded-full" style={{width: isUnlimited ? '100%' : `${(credits.count / 2) * 100}%`}}></div>
               </div>
             </div>
-            {credits.count <= 1 && (
+            {!isUnlimited && credits.count <= 1 && (
               <div className="mt-3 p-2.5 bg-yellow-50 border border-yellow-200 rounded-md text-xs text-yellow-800 flex items-start gap-2">
                 <WarningIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
                 <div>
@@ -153,6 +155,15 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
                       <p>Resets in: {timeRemaining}</p>
                     </>
                   )}
+                </div>
+              </div>
+            )}
+            {isUnlimited && (
+              <div className="mt-3 p-2.5 bg-purple-50 border border-purple-200 rounded-md text-xs text-purple-800 flex items-start gap-2">
+                <SparklesIcon className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-bold">Admin Account</p>
+                  <p>You have unlimited prompt generations.</p>
                 </div>
               </div>
             )}

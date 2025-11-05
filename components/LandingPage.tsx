@@ -308,7 +308,7 @@ Users begin their journey with a welcoming landing page that guides them through
 
         <main>
           {/* Hero Section */}
-          <section id="home" className="text-center py-16 md:py-32">
+          <section id="home" className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-88px)]">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-serif text-gray-900 leading-tight">Build faster with us.</h1>
             <p className="mt-6 text-base md:text-lg text-gray-600 max-w-2xl mx-auto">Turn simple ideas into detailed specifications effortlessly. Stop guessing, start building.</p>
             

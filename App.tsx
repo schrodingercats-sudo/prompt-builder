@@ -25,6 +25,13 @@ type InitialPrompt = {
   image: { data: string; mimeType: string } | null;
 } | null;
 
+const ADMIN_EMAIL = 'pratham.solanki30@gmail.com';
+
+// In a real app, this would come from an auth context.
+const MOCK_CURRENT_USER = {
+  email: 'pratham.solanki30@gmail.com'
+};
+
 const App: React.FC = () => {
   const [page, setPage] = useState<PageState>({ name: 'landing' });
   const [activeNav, setActiveNav] = useState('Home');
@@ -33,7 +40,14 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [credits, setCredits] = useState<CreditsState>({ count: 2, resetTime: null });
 
+  const isUserAdmin = MOCK_CURRENT_USER.email === ADMIN_EMAIL;
+
   useEffect(() => {
+    if (isUserAdmin) {
+      setCredits({ count: Infinity, resetTime: null });
+      return;
+    }
+
     try {
       const savedCreditsRaw = localStorage.getItem('promptifyCredits');
       if (savedCreditsRaw) {
@@ -52,9 +66,13 @@ const App: React.FC = () => {
       console.error("Failed to manage credits in localStorage:", error);
       setCredits({ count: 2, resetTime: null });
     }
-  }, []);
+  }, [isUserAdmin]);
 
   const handleUseCredit = useCallback(() => {
+    if (isUserAdmin) {
+      return;
+    }
+
     setCredits(prevCredits => {
       const newCount = Math.max(0, prevCredits.count - 1);
       const newResetTime = newCount === 0 ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
@@ -65,7 +83,7 @@ const App: React.FC = () => {
       localStorage.setItem('promptifyCredits', JSON.stringify(newCredits));
       return newCredits;
     });
-  }, []);
+  }, [isUserAdmin]);
 
   const handleStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
     setInitialPrompt({ text, image });

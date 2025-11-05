@@ -107,7 +107,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits,
     <>
       <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
         
-        <div className="flex flex-col items-center pt-8 md:pt-16 pb-24 px-4 sm:px-6">
+        <div className="flex flex-col items-center justify-center min-h-full p-4 sm:p-6">
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-center text-gray-800 mb-10 md:mb-12">
                 What do you want to build today?
             </h1>
