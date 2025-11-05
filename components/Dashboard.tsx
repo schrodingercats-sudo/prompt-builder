@@ -4,7 +4,7 @@ import { OptimizedPromptResponse } from '../types';
 import {
   WandIcon, CloseIcon, SunIcon, ZapIcon, CreditCardIcon, SparklesIcon,
   GlobeIcon, ImageIcon, RefreshIcon, PlusIcon, ChevronDownIcon,
-  LovableAiIcon, CursorIcon, VercelIcon, ReplitIcon, BoltIcon
+  LovableAiIcon, CursorIcon, VercelIcon, ReplitIcon, BoltIcon, CopyIcon, CheckIcon
 } from './Icons';
 
 type CreditsState = {
@@ -38,6 +38,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits,
   const [image, setImage] = useState<{ data: string; mimeType: string } | null>(null);
   const [selectedModel, setSelectedModel] = useState(aiModels[0]);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -93,6 +94,16 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits,
       reader.readAsDataURL(file);
     }
   };
+  
+  const handleCopyPrompt = useCallback(() => {
+    if (result) {
+        navigator.clipboard.writeText(result.prompt);
+        setCopyStatus('copied');
+        setTimeout(() => {
+            setCopyStatus('idle');
+        }, 2000);
+    }
+  }, [result]);
 
   const triggerFileInput = () => fileInputRef.current?.click();
 
@@ -171,7 +182,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits,
                       </>
                       ) : (
                       <>
-                          Generate Enhanced Prompt
+                          Enhance Prompt
                           <WandIcon className="h-5 w-5" />
                       </>
                       )}
@@ -185,7 +196,25 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits,
                 <div className="mt-12 w-full max-w-3xl mx-auto space-y-8 animate-fade-in">
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><SparklesIcon className="h-5 w-5 text-purple-500" />Optimized Prompt</h3>
-                        <div className="mt-2 p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 whitespace-pre-wrap font-mono text-sm overflow-x-auto">{result.prompt}</div>
+                        <div className="relative mt-2">
+                            <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-gray-700 whitespace-pre-wrap font-mono text-sm overflow-x-auto pr-20">{result.prompt}</div>
+                             <button
+                                onClick={handleCopyPrompt}
+                                className="absolute top-3 right-3 flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-gray-600 bg-white border border-gray-200 rounded-md hover:bg-gray-100 transition-all"
+                            >
+                                {copyStatus === 'copied' ? (
+                                    <>
+                                        <CheckIcon className="h-4 w-4 text-green-600" />
+                                        Copied!
+                                    </>
+                                ) : (
+                                    <>
+                                        <CopyIcon className="h-4 w-4" />
+                                        Copy
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </div>
                     <div>
                         <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2"><CreditCardIcon className="h-5 w-5 text-purple-500" />Key Suggestions</h3>

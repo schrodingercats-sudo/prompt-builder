@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { Prompt } from '../types';
 import {
-  LovableHeartIcon, ChevronDownIcon, CalendarIcon, GlobeIcon, CopyIcon, LovableAiIcon, CursorIcon, VercelIcon,
+  // Fix: Removed non-existent and unused LovableHeartIcon.
+  ChevronDownIcon, CalendarIcon, GlobeIcon, CopyIcon, LovableAiIcon, CursorIcon, VercelIcon,
   SearchIcon, FilterIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon, SparklesIcon, ReplitIcon, BoltIcon
 } from './Icons';
 

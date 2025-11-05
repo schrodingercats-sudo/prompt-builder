@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Prompt } from '../types';
-import { LovableHeartIcon, LovableAiIcon, VercelIcon, ReplitIcon, CursorIcon, BoltIcon, ImageIcon, ArrowRightIcon, GithubIcon, GoogleIcon, GridIcon, CalendarIcon, GlobeIcon, CopyIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, CloseIcon, HeartIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon } from './Icons';
+// Fix: Replace non-existent LovableHeartIcon with LovableAiIcon.
+import { LogoIcon, LovableAiIcon, VercelIcon, ReplitIcon, CursorIcon, BoltIcon, ImageIcon, ArrowRightIcon, GithubIcon, GoogleIcon, GridIcon, CalendarIcon, GlobeIcon, CopyIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, CloseIcon, HeartIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon } from './Icons';
 
 interface LandingPageProps {
   onStart: (promptText: string, image: { data: string; mimeType: string } | null) => void;
@@ -287,28 +288,28 @@ Users begin their journey with a welcoming landing page that guides them through
     <div className="min-h-screen w-full bg-[#f8fafc] text-[#1E1E1E] font-sans">
       <div className="absolute inset-0 z-0" style={{ backgroundImage: `linear-gradient(135deg, rgba(248,250,252,1) 0%, rgba(219,234,254,0.7) 30%, rgba(165,180,252,0.5) 60%, rgba(129,140,248,0.6) 100%), radial-gradient(circle at 20% 30%, rgba(255,255,255,0.6) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(199,210,254,0.4) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(224,231,255,0.3) 0%, transparent 60%)` }}/>
 
-      <div className="relative z-10 px-4 sm:px-6 container mx-auto">
-        <header className="py-4">
-            <nav className="flex items-center justify-between bg-white/50 backdrop-blur-lg p-3 rounded-full border border-white/80 shadow-sm">
-                <a href="#" className="flex items-center gap-2">
-                    <LovableHeartIcon className="h-8 w-8" />
-                    <span className="font-bold text-xl text-gray-800">Promptify</span>
-                </a>
-                <div className="hidden md:flex items-center gap-8 font-medium text-gray-600">
-                    <a href="#home" className="hover:text-purple-600 transition-colors">Home</a>
-                    <a href="#how-it-works" className="hover:text-purple-600 transition-colors">How it works</a>
-                    <a href="#pricing" className="hover:text-purple-600 transition-colors">Pricing</a>
-                    <a href="#faq" className="hover:text-purple-600 transition-colors">FAQ's</a>
-                </div>
-                <div className="flex items-center gap-2">
-                     <button onClick={() => onStart('', null)} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
-                </div>
-            </nav>
-        </header>
+      <header className="fixed top-0 left-0 right-0 z-20 py-4 px-4 sm:px-6">
+          <nav className="max-w-5xl mx-auto flex items-center justify-between bg-white/50 backdrop-blur-lg p-3 rounded-full border border-white/80 shadow-sm">
+              <a href="#" className="flex items-center gap-2">
+                  <LogoIcon className="h-8 w-8" />
+                  <span className="font-bold text-xl text-gray-800">Promptify</span>
+              </a>
+              <div className="hidden md:flex items-center gap-8 font-medium text-gray-600">
+                  <a href="#home" className="hover:text-purple-600 transition-colors">Home</a>
+                  <a href="#how-it-works" className="hover:text-purple-600 transition-colors">How it works</a>
+                  <a href="#pricing" className="hover:text-purple-600 transition-colors">Pricing</a>
+                  <a href="#faq" className="hover:text-purple-600 transition-colors">FAQ's</a>
+              </div>
+              <div className="flex items-center gap-2">
+                   <button onClick={() => onStart('', null)} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
+              </div>
+          </nav>
+      </header>
 
+      <div className="relative z-10 px-4 sm:px-6 container mx-auto">
         <main>
           {/* Hero Section */}
-          <section id="home" className="text-center flex flex-col items-center justify-center min-h-[calc(100vh-88px)]">
+          <section id="home" className="text-center flex flex-col items-center justify-center min-h-screen pt-28">
             <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold font-serif text-gray-900 leading-tight">Build faster with us.</h1>
             <p className="mt-6 text-base md:text-lg text-gray-600 max-w-2xl mx-auto">Turn simple ideas into detailed specifications effortlessly. Stop guessing, start building.</p>
             
@@ -329,14 +330,14 @@ Users begin their journey with a welcoming landing page that guides them through
                         className="w-full h-28 p-4 text-base text-gray-800 placeholder-gray-400 border-none resize-none focus:ring-0 bg-transparent"
                     />
                 </div>
-                <div className="flex flex-col sm:flex-row items-center justify-between pt-2 border-t border-gray-100 gap-3 sm:gap-0">
-                    <div className="w-full sm:w-auto">
+                <div className="flex items-center pt-2 border-t border-gray-100">
+                    <div>
                         <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
                         <button onClick={triggerFileSelect} className="p-2 text-gray-500 hover:text-purple-600 rounded-lg hover:bg-purple-50 transition-colors" aria-label="Upload image">
                             <ImageIcon className="h-6 w-6"/>
                         </button>
                     </div>
-                    <div className="w-full sm:w-auto flex items-center justify-between sm:justify-end gap-2">
+                    <div className="flex items-center gap-2 ml-auto">
                         <div ref={dropdownRef} className="relative">
                             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="flex items-center gap-2 bg-gray-50 border border-gray-200 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-100">
                                 <selectedModel.icon className="h-5 w-5" />
@@ -467,7 +468,7 @@ Users begin their journey with a welcoming landing page that guides them through
         <footer className="py-12 border-t border-gray-200/50 mt-16 px-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-8">
                  <a href="#" className="flex items-center gap-2">
-                    <LovableHeartIcon className="h-8 w-8" />
+                    <LogoIcon className="h-8 w-8" />
                     <span className="font-bold text-xl text-gray-800">Promptify</span>
                 </a>
                 <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-8 font-medium text-gray-600">

@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  LovableHeartIcon, HomeIcon, FolderIcon,
+  HomeIcon, FolderIcon,
   CreditCardIcon, SparklesIcon, PlusIcon, WarningIcon, ChevronDownIcon, GlobeIcon,
-  SettingsIcon, TrashIcon, ChevronUpIcon
+  SettingsIcon, TrashIcon, ChevronUpIcon, LogoutIcon, LogoIcon
 } from './Icons';
 
 type CreditsState = {
@@ -17,9 +17,10 @@ interface SidebarProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   credits: CreditsState;
+  onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits, onLogout }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [timeRemaining, setTimeRemaining] = useState('');
@@ -72,8 +73,26 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
   const userMenuItems = [
     { name: 'Settings', icon: <SettingsIcon className="h-5 w-5" /> },
     { name: 'Dashboard', icon: <CreditCardIcon className="h-5 w-5" /> },
-    { name: 'Delete Account', icon: <TrashIcon className="h-5 w-5" />, isDestructive: true },
+    { name: 'Sign Out', icon: <LogoutIcon className="h-5 w-5" />, isDestructive: true },
   ];
+  
+  const handleUserMenuClick = (itemName: string) => {
+    setIsUserMenuOpen(false);
+    switch (itemName) {
+        case 'Settings':
+            setActiveNav('Settings');
+            break;
+        case 'Dashboard':
+            setActiveNav('Home');
+            break;
+        case 'Sign Out':
+            onLogout();
+            break;
+        default:
+            break;
+    }
+  };
+
 
   return (
     <>
@@ -85,7 +104,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
       <nav className={`w-72 flex-shrink-0 bg-[#FBFBFB] border-r border-gray-200 flex flex-col justify-between p-4 fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div>
           <div className="hidden md:flex items-center gap-2 mb-8 px-2">
-            <LovableHeartIcon className="h-8 w-8" />
+            <LogoIcon className="h-8 w-8" />
             <span className="font-bold text-lg text-gray-800">Promptify</span>
           </div>
           
@@ -174,7 +193,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
               <div className="absolute bottom-full mb-2 w-full bg-white rounded-lg shadow-lg border animate-fade-in-up z-20">
                 <div className="p-2">
                   {userMenuItems.map(item => (
-                    <button key={item.name} className={`w-full flex items-center gap-3 p-2 text-sm rounded-md transition-colors ${item.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
+                    <button 
+                      key={item.name} 
+                      onClick={() => handleUserMenuClick(item.name)}
+                      className={`w-full flex items-center gap-3 p-2 text-sm rounded-md transition-colors ${item.isDestructive ? 'text-red-600 hover:bg-red-50' : 'text-gray-700 hover:bg-gray-100'}`}>
                       {item.icon}
                       <span>{item.name}</span>
                     </button>

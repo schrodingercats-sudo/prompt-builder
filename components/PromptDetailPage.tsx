@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Prompt } from '../types';
 import {
-  LovableHeartIcon, ChevronDownIcon, CopyIcon, ArrowLeftIcon, ClockIcon, CheckIcon
+  // Fix: Removed non-existent and unused LovableHeartIcon.
+  ChevronDownIcon, CopyIcon, ArrowLeftIcon, ClockIcon, CheckIcon
 } from './Icons';
 
 interface PromptDetailPageProps {

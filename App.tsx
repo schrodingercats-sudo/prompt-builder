@@ -4,9 +4,10 @@ import Dashboard from './components/Dashboard';
 import CommunityPage from './components/CommunityPage';
 import MyPromptsPage from './components/MyPromptsPage';
 import PromptDetailPage from './components/PromptDetailPage';
+import SettingsPage from './components/SettingsPage';
 import Sidebar from './components/Sidebar';
 import { Prompt } from './types';
-import { LovableHeartIcon } from './components/Icons';
+import { LogoIcon } from './components/Icons';
 
 type CreditsState = {
   count: number;
@@ -18,7 +19,8 @@ type PageState =
   | { name: 'dashboard' }
   | { name: 'community' }
   | { name: 'myPrompts' }
-  | { name: 'promptDetail'; prompt: Prompt };
+  | { name: 'promptDetail'; prompt: Prompt }
+  | { name: 'settings' };
 
 type InitialPrompt = {
   text: string;
@@ -120,8 +122,17 @@ const App: React.FC = () => {
       setPage({ name: 'community' });
     } else if (nav === 'My prompts') {
       setPage({ name: 'myPrompts' });
+    } else if (nav === 'Settings') {
+      setPage({ name: 'settings' });
     }
     setIsSidebarOpen(false);
+  }, []);
+  
+  const handleDeleteAccount = useCallback(() => {
+    localStorage.removeItem('savedPrompts');
+    localStorage.removeItem('promptifyCredits');
+    setCredits({ count: 2, resetTime: null });
+    setPage({ name: 'landing' });
   }, []);
 
   if (page.name === 'landing') {
@@ -138,6 +149,8 @@ const App: React.FC = () => {
         return <MyPromptsPage onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
       case 'promptDetail':
         return <PromptDetailPage prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
+      case 'settings':
+        return <SettingsPage onDeleteAccount={handleDeleteAccount} />;
       default:
         return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} credits={credits} onUseCredit={handleUseCredit} />;
     }
@@ -152,11 +165,12 @@ const App: React.FC = () => {
         isOpen={isSidebarOpen}
         setIsOpen={setIsSidebarOpen}
         credits={credits}
+        onLogout={handleLogout}
       />
       <main className="flex-1 relative overflow-y-auto">
         <div className="md:hidden p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-sm z-10">
            <div className="flex items-center gap-2">
-              <LovableHeartIcon className="h-7 w-7" />
+              <LogoIcon className="h-8 w-8" />
               <span className="font-bold text-lg text-gray-800">Promptify</span>
            </div>
            <button onClick={() => setIsSidebarOpen(true)} className="p-1">

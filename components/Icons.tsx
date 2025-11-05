@@ -4,10 +4,6 @@ type IconProps = {
   className?: string;
 };
 
-export const LovableHeartIcon: React.FC<IconProps> = ({ className }) => (
-  <img src="https://obliged-red-tnfhnynopx.edgeone.app/boo%20chat.png" alt="Promptify Logo" className={className} />
-);
-
 export const HomeIcon: React.FC<IconProps> = ({ className }) => (
   <svg className={className} viewBox="0 0 20 20" fill="currentColor">
     <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
@@ -106,6 +102,10 @@ export const WarningIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 // New & Updated Icons
+export const LogoIcon: React.FC<IconProps> = ({ className }) => (
+  <img src="https://obliged-red-tnfhnynopx.edgeone.app/boo%20chat.png" alt="Promptify Logo" className={className} />
+);
+
 export const LovableAiIcon: React.FC<IconProps> = ({ className }) => (
   <img src="https://lovable.edgeone.app/lovable-icon-bg-light.png" alt="Lovable AI Logo" className={className} />
 );
@@ -241,5 +241,11 @@ export const SettingsIcon: React.FC<IconProps> = ({ className }) => (
 export const TrashIcon: React.FC<IconProps> = ({ className }) => (
     <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+    </svg>
+);
+
+export const LogoutIcon: React.FC<IconProps> = ({ className }) => (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
     </svg>
 );
