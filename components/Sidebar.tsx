@@ -5,12 +5,17 @@ import {
   SettingsIcon, TrashIcon, ChevronUpIcon, LogoutIcon, LogoIcon
 } from './Icons';
 
+type User = {
+  email: string;
+};
+
 type CreditsState = {
   count: number;
   resetTime: number | null;
 };
 
 interface SidebarProps {
+  currentUser: User;
   activeNav: string;
   setActiveNav: (nav: string) => void;
   onNewPrompt: () => void;
@@ -20,7 +25,7 @@ interface SidebarProps {
   onLogout: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits, onLogout }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const [timeRemaining, setTimeRemaining] = useState('');
@@ -50,7 +55,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
       if (distance < 0) {
         setTimeRemaining('Resetting credits...');
         clearInterval(intervalId);
-        setTimeout(() => window.location.reload(), 1500); // Reload to get new credits
+        // This is a temporary solution for a client-side only app.
+        // In a real app, credit reset would be handled server-side.
+        setTimeout(() => window.location.reload(), 1500);
         return;
       }
 
@@ -72,7 +79,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
 
   const userMenuItems = [
     { name: 'Settings', icon: <SettingsIcon className="h-5 w-5" /> },
-    { name: 'Dashboard', icon: <CreditCardIcon className="h-5 w-5" /> },
     { name: 'Sign Out', icon: <LogoutIcon className="h-5 w-5" />, isDestructive: true },
   ];
   
@@ -81,9 +87,6 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
     switch (itemName) {
         case 'Settings':
             setActiveNav('Settings');
-            break;
-        case 'Dashboard':
-            setActiveNav('Home');
             break;
         case 'Sign Out':
             onLogout();
@@ -205,14 +208,14 @@ const Sidebar: React.FC<SidebarProps> = ({ activeNav, setActiveNav, onNewPrompt,
               </div>
             )}
             <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 transition-colors">
-               <div className="flex items-center gap-2">
-                <img src={`https://i.pravatar.cc/40?u=pratham.solanki30`} alt="User avatar" className="rounded-full w-8 h-8" />
-                <div>
-                    <p className="font-semibold text-sm text-left">pratham.solanki30</p>
-                    <p className="text-xs text-gray-500 text-left">pratham.solanki30@...</p>
+               <div className="flex items-center gap-2 overflow-hidden">
+                <img src={`https://i.pravatar.cc/40?u=${currentUser.email}`} alt="User avatar" className="rounded-full w-8 h-8 flex-shrink-0" />
+                <div className="truncate">
+                    <p className="font-semibold text-sm text-left truncate">{currentUser.email.split('@')[0]}</p>
+                    <p className="text-xs text-gray-500 text-left truncate">{currentUser.email}</p>
                 </div>
               </div>
-              <div className="text-gray-500 hover:text-gray-800">
+              <div className="text-gray-500 hover:text-gray-800 flex-shrink-0">
                 {isUserMenuOpen ? <ChevronUpIcon className="h-5 w-5" /> : <ChevronDownIcon className="h-5 w-5" />}
               </div>
             </button>

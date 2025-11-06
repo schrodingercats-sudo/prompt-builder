@@ -13,7 +13,6 @@ type CreditsState = {
 };
 
 interface DashboardProps {
-  onLogout: () => void;
   initialPrompt: {
     text: string;
     image: { data: string; mimeType: string } | null;
@@ -30,7 +29,7 @@ const aiModels = [
     { name: 'Bolt AI', icon: BoltIcon },
 ];
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout, initialPrompt, credits, onUseCredit }) => {
+const Dashboard: React.FC<DashboardProps> = ({ initialPrompt, credits, onUseCredit }) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

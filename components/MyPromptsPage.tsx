@@ -4,7 +4,12 @@ import {
   CalendarIcon, GlobeIcon, CopyIcon
 } from './Icons';
 
+type User = {
+    email: string;
+};
+
 interface MyPromptsPageProps {
+  currentUser: User;
   onSelectPrompt: (prompt: Prompt) => void;
   onNavigateToCommunity: () => void;
 }
@@ -63,12 +68,12 @@ const PromptCard: React.FC<{
 };
 
 
-const MyPromptsPage: React.FC<MyPromptsPageProps> = ({ onSelectPrompt, onNavigateToCommunity }) => {
+const MyPromptsPage: React.FC<MyPromptsPageProps> = ({ currentUser, onSelectPrompt, onNavigateToCommunity }) => {
   const [savedPrompts, setSavedPrompts] = useState<Prompt[]>([]);
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem('savedPrompts');
+      const saved = localStorage.getItem(`savedPrompts_${currentUser.email}`);
       if (saved) {
         setSavedPrompts(JSON.parse(saved));
       }
@@ -76,7 +81,7 @@ const MyPromptsPage: React.FC<MyPromptsPageProps> = ({ onSelectPrompt, onNavigat
       console.error("Failed to parse saved prompts from localStorage", error);
       setSavedPrompts([]);
     }
-  }, []);
+  }, [currentUser]);
 
   return (
     <div className="p-4 md:p-8">

@@ -4,7 +4,7 @@ import { Prompt } from '../types';
 import { LogoIcon, LovableAiIcon, VercelIcon, ReplitIcon, CursorIcon, BoltIcon, ImageIcon, ArrowRightIcon, GithubIcon, GoogleIcon, GridIcon, CalendarIcon, GlobeIcon, CopyIcon, ChevronDownIcon, ChevronUpIcon, CheckIcon, CloseIcon, HeartIcon, ShoppingCartIcon, ChartBarIcon, VideoCameraIcon, ChatBubbleIcon } from './Icons';
 
 interface LandingPageProps {
-  onStart: (promptText: string, image: { data: string; mimeType: string } | null) => void;
+  onAttemptStart: (promptText: string, image: { data: string; mimeType: string } | null) => void;
   onNavigateToCommunity: () => void;
   onSelectPrompt: (prompt: Prompt) => void;
 }
@@ -166,7 +166,7 @@ const BrandCarousel: React.FC = () => {
   );
 };
 
-const LandingPage: React.FC<LandingPageProps> = ({ onStart, onNavigateToCommunity, onSelectPrompt }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onAttemptStart, onNavigateToCommunity, onSelectPrompt }) => {
     const aiModels = [
         { name: 'Lovable AI', icon: LovableAiIcon },
         { name: 'Cursor AI', icon: CursorIcon },
@@ -215,7 +215,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onNavigateToCommunit
     
     const handleStart = () => {
         const imageData = image ? { data: image.data, mimeType: image.mimeType } : null;
-        onStart(promptText, imageData);
+        onAttemptStart(promptText, imageData);
     }
 
     const tinderPromptContent = `
@@ -301,7 +301,7 @@ Users begin their journey with a welcoming landing page that guides them through
                   <a href="#faq" className="hover:text-purple-600 transition-colors">FAQ's</a>
               </div>
               <div className="flex items-center gap-2">
-                   <button onClick={() => onStart('', null)} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
+                   <button onClick={() => onAttemptStart('', null)} className="bg-gray-800 text-white font-semibold px-4 py-2 rounded-full shadow-md hover:bg-gray-900 transition-all transform hover:scale-105">Sign In</button>
               </div>
           </nav>
       </header>
@@ -436,7 +436,7 @@ Users begin their journey with a welcoming landing page that guides them through
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-500" /> Standard optimization</li>
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-500" /> Public prompts only</li>
                     </ul>
-                    <button onClick={() => onStart('', null)} className="mt-8 w-full bg-white text-gray-800 font-semibold py-3 rounded-lg shadow-md border border-gray-200/80 hover:bg-gray-50">Get started</button>
+                    <button onClick={() => onAttemptStart('', null)} className="mt-8 w-full bg-white text-gray-800 font-semibold py-3 rounded-lg shadow-md border border-gray-200/80 hover:bg-gray-50">Get started</button>
                 </div>
                 <div className="bg-gray-800 text-white border-purple-400 border-2 rounded-2xl p-8 shadow-2xl md:scale-105">
                      <p className="text-center font-semibold bg-purple-500 text-white py-1 px-3 rounded-full w-fit mx-auto text-sm">Most Popular</p>
@@ -449,7 +449,7 @@ Users begin their journey with a welcoming landing page that guides them through
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> Private prompts</li>
                         <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> Priority support</li>
                     </ul>
-                    <button onClick={() => onStart('', null)} className="mt-8 w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-purple-700">Go Pro</button>
+                    <button onClick={() => onAttemptStart('', null)} className="mt-8 w-full bg-purple-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:bg-purple-700">Go Pro</button>
                 </div>
             </div>
           </section>

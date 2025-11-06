@@ -6,8 +6,13 @@ import MyPromptsPage from './components/MyPromptsPage';
 import PromptDetailPage from './components/PromptDetailPage';
 import SettingsPage from './components/SettingsPage';
 import Sidebar from './components/Sidebar';
+import AuthModal from './components/AuthModal';
 import { Prompt } from './types';
 import { LogoIcon } from './components/Icons';
+
+type User = {
+  email: string;
+};
 
 type CreditsState = {
   count: number;
@@ -15,7 +20,6 @@ type CreditsState = {
 };
 
 type PageState =
-  | { name: 'landing' }
   | { name: 'dashboard' }
   | { name: 'community' }
   | { name: 'myPrompts' }
@@ -29,78 +33,102 @@ type InitialPrompt = {
 
 const ADMIN_EMAIL = 'pratham.solanki30@gmail.com';
 
-// In a real app, this would come from an auth context.
-const MOCK_CURRENT_USER = {
-  email: 'pratham.solanki30@gmail.com'
-};
-
 const App: React.FC = () => {
-  const [page, setPage] = useState<PageState>({ name: 'landing' });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [page, setPage] = useState<PageState>({ name: 'dashboard' });
   const [activeNav, setActiveNav] = useState('Home');
   const [initialPrompt, setInitialPrompt] = useState<InitialPrompt>(null);
+  const [pendingPrompt, setPendingPrompt] = useState<InitialPrompt>(null);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [dashboardKey, setDashboardKey] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [credits, setCredits] = useState<CreditsState>({ count: 2, resetTime: null });
 
-  const isUserAdmin = MOCK_CURRENT_USER.email === ADMIN_EMAIL;
+  const isUserAdmin = currentUser?.email === ADMIN_EMAIL;
 
   useEffect(() => {
+    if (!currentUser) return;
+
     if (isUserAdmin) {
       setCredits({ count: Infinity, resetTime: null });
       return;
     }
-
+    
+    const creditsKey = `promptifyCredits_${currentUser.email}`;
     try {
-      const savedCreditsRaw = localStorage.getItem('promptifyCredits');
+      const savedCreditsRaw = localStorage.getItem(creditsKey);
       if (savedCreditsRaw) {
         const savedCredits = JSON.parse(savedCreditsRaw) as CreditsState;
         if (savedCredits.resetTime && Date.now() > savedCredits.resetTime) {
           const newCredits = { count: 2, resetTime: null };
-          localStorage.setItem('promptifyCredits', JSON.stringify(newCredits));
+          localStorage.setItem(creditsKey, JSON.stringify(newCredits));
           setCredits(newCredits);
         } else {
           setCredits(savedCredits);
         }
       } else {
-        localStorage.setItem('promptifyCredits', JSON.stringify({ count: 2, resetTime: null }));
+        localStorage.setItem(creditsKey, JSON.stringify({ count: 2, resetTime: null }));
+        setCredits({ count: 2, resetTime: null });
       }
     } catch (error) {
       console.error("Failed to manage credits in localStorage:", error);
       setCredits({ count: 2, resetTime: null });
     }
-  }, [isUserAdmin]);
+  }, [currentUser, isUserAdmin]);
 
   const handleUseCredit = useCallback(() => {
-    if (isUserAdmin) {
-      return;
-    }
-
+    if (!currentUser || isUserAdmin) return;
+    
+    const creditsKey = `promptifyCredits_${currentUser.email}`;
     setCredits(prevCredits => {
       const newCount = Math.max(0, prevCredits.count - 1);
-      const newResetTime = newCount === 0 ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
+      const newResetTime = newCount === 0 && !prevCredits.resetTime ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
       const newCredits: CreditsState = {
         count: newCount,
         resetTime: newResetTime,
       };
-      localStorage.setItem('promptifyCredits', JSON.stringify(newCredits));
+      localStorage.setItem(creditsKey, JSON.stringify(newCredits));
       return newCredits;
     });
-  }, [isUserAdmin]);
+  }, [currentUser, isUserAdmin]);
+  
+  const handleAttemptStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
+    const promptData = { text, image };
+    if (currentUser) {
+        setInitialPrompt(promptData);
+        setPage({ name: 'dashboard' });
+        setActiveNav('Home');
+    } else {
+        setPendingPrompt(promptData);
+        setIsAuthModalOpen(true);
+    }
+  }, [currentUser]);
 
-  const handleStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
-    setInitialPrompt({ text, image });
+  const handleLoginSuccess = useCallback((user: User) => {
+    setCurrentUser(user);
+    setIsAuthModalOpen(false);
+    setInitialPrompt(pendingPrompt);
     setPage({ name: 'dashboard' });
     setActiveNav('Home');
-  }, []);
+    setPendingPrompt(null);
+  }, [pendingPrompt]);
 
-  const handleLogout = useCallback(() => setPage({ name: 'landing' }), []);
+  const handleLogout = useCallback(() => {
+      setCurrentUser(null);
+      setPage({ name: 'dashboard' }); // Reset to default page for next login
+  }, []);
 
   const handleNavigateToCommunity = useCallback(() => {
     setPage({ name: 'community' });
     setActiveNav('Community');
   }, []);
   
-  const handleNavigateToLanding = useCallback(() => setPage({ name: 'landing' }), []);
+  const handleNavigateToLanding = useCallback(() => {
+    if (currentUser) {
+        setPage({ name: 'dashboard' });
+        setActiveNav('Home');
+    }
+  }, [currentUser]);
 
   const handleSelectPrompt = useCallback((prompt: Prompt) => setPage({ name: 'promptDetail', prompt }), []);
 
@@ -129,36 +157,50 @@ const App: React.FC = () => {
   }, []);
   
   const handleDeleteAccount = useCallback(() => {
-    localStorage.removeItem('savedPrompts');
-    localStorage.removeItem('promptifyCredits');
-    setCredits({ count: 2, resetTime: null });
-    setPage({ name: 'landing' });
-  }, []);
+    if (!currentUser) return;
+    try {
+        const usersRaw = localStorage.getItem('promptifyUsers');
+        let users = usersRaw ? JSON.parse(usersRaw) : [];
+        users = users.filter((u: User) => u.email !== currentUser.email);
+        localStorage.setItem('promptifyUsers', JSON.stringify(users));
+    } catch (e) {
+        console.error("Failed to remove user from database", e);
+    }
+    localStorage.removeItem(`savedPrompts_${currentUser.email}`);
+    localStorage.removeItem(`promptifyCredits_${currentUser.email}`);
+    handleLogout();
+  }, [currentUser, handleLogout]);
 
-  if (page.name === 'landing') {
-    return <LandingPage onStart={handleStart} onNavigateToCommunity={handleNavigateToCommunity} onSelectPrompt={handleSelectPrompt} />;
+  if (!currentUser) {
+    return (
+      <>
+        <LandingPage onAttemptStart={handleAttemptStart} onNavigateToCommunity={() => { setPendingPrompt(null); setIsAuthModalOpen(true); }} onSelectPrompt={() => { setPendingPrompt(null); setIsAuthModalOpen(true); }} />
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} onLoginSuccess={handleLoginSuccess} />
+      </>
+    );
   }
   
   const renderContent = () => {
     switch (page.name) {
       case 'dashboard':
-        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} credits={credits} onUseCredit={handleUseCredit} />;
+        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} />;
       case 'community':
         return <CommunityPage onNavigateToLanding={handleNavigateToLanding} onSelectPrompt={handleSelectPrompt} />;
       case 'myPrompts':
-        return <MyPromptsPage onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
+        return <MyPromptsPage currentUser={currentUser} onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
       case 'promptDetail':
-        return <PromptDetailPage prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
+        return <PromptDetailPage currentUser={currentUser} prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
       case 'settings':
         return <SettingsPage onDeleteAccount={handleDeleteAccount} />;
       default:
-        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} onLogout={handleLogout} credits={credits} onUseCredit={handleUseCredit} />;
+        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} />;
     }
   };
 
   return (
     <div className="text-[#1E1E1E] flex h-screen bg-white overflow-hidden">
       <Sidebar 
+        currentUser={currentUser}
         activeNav={activeNav} 
         setActiveNav={handleNavChange} 
         onNewPrompt={handleNewPrompt} 

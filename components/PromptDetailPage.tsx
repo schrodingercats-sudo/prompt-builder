@@ -5,19 +5,26 @@ import {
   ChevronDownIcon, CopyIcon, ArrowLeftIcon, ClockIcon, CheckIcon
 } from './Icons';
 
+type User = {
+  email: string;
+}
+
 interface PromptDetailPageProps {
   prompt: Prompt;
   onNavigateBack: () => void;
+  currentUser: User;
 }
 
-const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateBack }) => {
+const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateBack, currentUser }) => {
   const [copyButtonText, setCopyButtonText] = useState('Copy Prompt');
   const [isSaved, setIsSaved] = useState(false);
+
+  const savedPromptsKey = `savedPrompts_${currentUser.email}`;
 
   // Function to safely retrieve prompts from localStorage
   const getSavedPrompts = (): Prompt[] => {
     try {
-      const saved = localStorage.getItem('savedPrompts');
+      const saved = localStorage.getItem(savedPromptsKey);
       return saved ? JSON.parse(saved) : [];
     } catch (error) {
       console.error("Failed to parse saved prompts:", error);
@@ -33,7 +40,7 @@ const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateB
     if (alreadySaved) {
       setIsSaved(true);
     }
-  }, [prompt.title]);
+  }, [prompt.title, savedPromptsKey]);
 
 
   const handleCopy = () => {
@@ -47,7 +54,7 @@ const PromptDetailPage: React.FC<PromptDetailPageProps> = ({ prompt, onNavigateB
 
     const savedPrompts = getSavedPrompts();
     const newSavedPrompts = [...savedPrompts, prompt];
-    localStorage.setItem('savedPrompts', JSON.stringify(newSavedPrompts));
+    localStorage.setItem(savedPromptsKey, JSON.stringify(newSavedPrompts));
     setIsSaved(true);
   };
 
