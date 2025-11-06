@@ -13,18 +13,24 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+let app: ReturnType<typeof initializeApp> | null = null;
+let analytics: ReturnType<typeof getAnalytics> | null = null;
+let auth: ReturnType<typeof getAuth> | null = null;
+let googleProvider: GoogleAuthProvider | null = null;
 
-// Initialize Firebase Authentication and get a reference to the service
-export const auth = getAuth(app);
+try {
+  if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+    throw new Error('Firebase is not configured. Missing VITE_FIREBASE_* envs.');
+  }
 
-// Initialize Analytics (only in production)
-export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
+  googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+} catch (e) {
+  // Avoid crashing the whole app in production; consumers can feature-detect nulls
+  console.error('Failed to initialize Firebase:', e);
+}
 
-// Initialize Google Auth Provider
-export const googleProvider = new GoogleAuthProvider();
-googleProvider.setCustomParameters({
-  prompt: 'select_account'
-});
-
-export default app;
+export { app as default, auth, analytics, googleProvider };
