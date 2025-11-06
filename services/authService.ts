@@ -4,6 +4,8 @@ import {
   signInWithPopup,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
+  deleteUser,
   User
 } from 'firebase/auth';
 import { auth, googleProvider } from './firebaseConfig';
@@ -66,6 +68,42 @@ export class AuthService {
       const authUser = user ? this.mapFirebaseUser(user) : null;
       callback(authUser);
     });
+  }
+
+  // Send password reset email
+  async sendPasswordReset(email: string): Promise<void> {
+    try {
+      await sendPasswordResetEmail(auth, email, {
+        url: window.location.origin, // Return URL after password reset
+        handleCodeInApp: false
+      });
+    } catch (error: any) {
+      // Provide more specific error messages
+      if (error.code === 'auth/user-not-found') {
+        throw new Error('No account found with this email address.');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('Invalid email address.');
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many requests. Please try again later.');
+      }
+      throw new Error(error.message);
+    }
+  }
+
+  // Delete user account
+  async deleteAccount(): Promise<void> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No user is currently signed in');
+      }
+      await deleteUser(user);
+    } catch (error: any) {
+      if (error.code === 'auth/requires-recent-login') {
+        throw new Error('For security reasons, please sign out and sign back in before deleting your account.');
+      }
+      throw new Error(error.message);
+    }
   }
 
   private mapFirebaseUser(user: User): AuthUser {

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LogoIcon, CloseIcon, GoogleIcon } from './Icons';
 import { authService, AuthUser } from '../services/authService';
+import { blacklistService } from '../services/blacklistService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -13,6 +14,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [resetMessage, setResetMessage] = useState('');
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +24,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     if (!email || !password) {
         setError('Please fill in all fields.');
         return;
+    }
+
+    // Check if email is blacklisted (for both sign up and sign in)
+    if (blacklistService.isBlacklisted(email)) {
+      setError('This account has been permanently deleted and cannot be recreated. Please contact support if you believe this is an error.');
+      return;
     }
 
     try {
@@ -43,11 +52,48 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     try {
       setError('');
       const user = await authService.signInWithGoogle();
+      
+      // Check if the Google account email is blacklisted
+      if (blacklistService.isBlacklisted(user.email)) {
+        // Sign out the user immediately
+        await authService.signOut();
+        setError('This account has been permanently deleted and cannot be recreated. Please contact support if you believe this is an error.');
+        return;
+      }
+      
       onLoginSuccess(user);
     } catch (e: any) {
       setError(e.message || 'Failed to sign in with Google.');
       console.error(e);
     }
+  };
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setResetMessage('');
+
+    if (!email) {
+      setError('Please enter your email address.');
+      return;
+    }
+
+    try {
+      await authService.sendPasswordReset(email);
+      setResetMessage('Password reset email sent! Check your inbox.');
+    } catch (e: any) {
+      setError(e.message || 'Failed to send password reset email.');
+      console.error(e);
+    }
+  };
+
+  const resetForm = () => {
+    setEmail('');
+    setPassword('');
+    setError('');
+    setResetMessage('');
+    setIsResetMode(false);
+    setIsSignUp(false);
   };
   
   if (!isOpen) return null;
@@ -60,11 +106,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         </button>
         <div className="flex flex-col items-center text-center">
             <LogoIcon className="h-12 w-12 mb-2" />
-            <h2 className="text-2xl font-bold font-serif text-gray-800">{isSignUp ? 'Create an Account' : 'Welcome Back'}</h2>
-            <p className="text-gray-500 mt-1">{isSignUp ? 'Get started with Promptify.' : 'Sign in to continue.'}</p>
+            <h2 className="text-2xl font-bold font-serif text-gray-800">
+              {isResetMode ? 'Reset Password' : isSignUp ? 'Create an Account' : 'Welcome Back'}
+            </h2>
+            <p className="text-gray-500 mt-1">
+              {isResetMode ? 'Enter your email to receive a password reset link.' : isSignUp ? 'Get started with Promptify.' : 'Sign in to continue.'}
+            </p>
         </div>
         
-        <form onSubmit={handleAuth} className="mt-8 space-y-4">
+        <form onSubmit={isResetMode ? handlePasswordReset : handleAuth} className="mt-8 space-y-4">
             <div>
                 <label className="text-sm font-medium text-gray-700" htmlFor="email">Email</label>
                 <input 
@@ -77,29 +127,45 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
                     placeholder="you@example.com"
                 />
             </div>
-             <div>
-                <label className="text-sm font-medium text-gray-700" htmlFor="password">Password</label>
-                <input 
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={e => setPassword(e.target.value)}
-                    required
-                    minLength={6}
-                    className="w-full mt-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-purple-500"
-                    placeholder="••••••••"
-                />
-            </div>
+            {!isResetMode && (
+              <div>
+                  <label className="text-sm font-medium text-gray-700" htmlFor="password">Password</label>
+                  <input 
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                      className="w-full mt-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-300 focus:border-purple-500"
+                      placeholder="••••••••"
+                  />
+              </div>
+            )}
             {error && <p className="text-red-600 text-sm text-center">{error}</p>}
+            {resetMessage && <p className="text-green-600 text-sm text-center">{resetMessage}</p>}
             <button type="submit" className="w-full bg-gray-800 text-white font-semibold py-3 rounded-lg shadow-sm hover:bg-gray-900 transition-transform transform hover:scale-105">
-                {isSignUp ? 'Sign Up' : 'Login'}
+                {isResetMode ? 'Send Reset Email' : isSignUp ? 'Sign Up' : 'Login'}
             </button>
         </form>
         
-        <div className="text-center mt-4">
-            <button onClick={() => { setIsSignUp(!isSignUp); setError(''); }} className="text-sm text-purple-600 hover:underline font-medium">
-                {isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
-            </button>
+        <div className="text-center mt-4 space-y-2">
+            {!isResetMode ? (
+              <>
+                <button onClick={() => { setIsSignUp(!isSignUp); setError(''); setResetMessage(''); }} className="text-sm text-purple-600 hover:underline font-medium block">
+                    {isSignUp ? 'Already have an account? Login' : "Don't have an account? Sign Up"}
+                </button>
+                {!isSignUp && (
+                  <button onClick={() => { setIsResetMode(true); setError(''); setResetMessage(''); }} className="text-sm text-gray-500 hover:underline font-medium block">
+                      Forgot your password?
+                  </button>
+                )}
+              </>
+            ) : (
+              <button onClick={resetForm} className="text-sm text-purple-600 hover:underline font-medium">
+                  Back to Login
+              </button>
+            )}
         </div>
         
         <div className="relative my-6">
@@ -111,16 +177,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
             </div>
         </div>
 
-        <div className="space-y-3">
-             <button 
-                onClick={handleGoogleSignIn}
-                type="button"
-                className="w-full flex items-center justify-center gap-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-             >
-                <GoogleIcon className="h-5 w-5"/>
-                <span className="font-medium text-gray-700">Continue with Google</span>
-            </button>
-        </div>
+        {!isResetMode && (
+          <div className="space-y-3">
+               <button 
+                  onClick={handleGoogleSignIn}
+                  type="button"
+                  className="w-full flex items-center justify-center gap-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+               >
+                  <GoogleIcon className="h-5 w-5"/>
+                  <span className="font-medium text-gray-700">Continue with Google</span>
+              </button>
+          </div>
+        )}
 
       </div>
     </div>
