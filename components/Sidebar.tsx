@@ -23,6 +23,7 @@ interface SidebarProps {
   setIsOpen: (isOpen: boolean) => void;
   credits: CreditsState;
   onLogout: () => void;
+
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits, onLogout }) => {
@@ -190,6 +191,8 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav,
               </div>
             )}
           </div>
+
+
 
           <div ref={userMenuRef} className="relative">
              {isUserMenuOpen && (

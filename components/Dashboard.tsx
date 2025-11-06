@@ -1,16 +1,13 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { optimizePrompt } from '../services/geminiService';
-import { OptimizedPromptResponse } from '../types';
+import { OptimizedPromptResponse, CreditsState } from '../types';
+import { databaseService } from '../services/databaseService';
+import { AuthUser } from '../services/authService';
 import {
   WandIcon, CloseIcon, SunIcon, ZapIcon, CreditCardIcon, SparklesIcon,
   GlobeIcon, ImageIcon, RefreshIcon, PlusIcon, ChevronDownIcon,
   LovableAiIcon, CursorIcon, VercelIcon, ReplitIcon, BoltIcon, CopyIcon, CheckIcon
 } from './Icons';
-
-type CreditsState = {
-  count: number;
-  resetTime: number | null;
-};
 
 interface DashboardProps {
   initialPrompt: {
@@ -18,7 +15,8 @@ interface DashboardProps {
     image: { data: string; mimeType: string } | null;
   } | null;
   credits: CreditsState;
-  onUseCredit: () => void;
+  onUseCredit: () => Promise<void>;
+  currentUser: AuthUser;
 }
 
 const aiModels = [
@@ -29,7 +27,7 @@ const aiModels = [
     { name: 'Bolt AI', icon: BoltIcon },
 ];
 
-const Dashboard: React.FC<DashboardProps> = ({ initialPrompt, credits, onUseCredit }) => {
+const Dashboard: React.FC<DashboardProps> = ({ initialPrompt, credits, onUseCredit, currentUser }) => {
   const [prompt, setPrompt] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -58,6 +56,60 @@ const Dashboard: React.FC<DashboardProps> = ({ initialPrompt, credits, onUseCred
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const savePromptToDatabase = useCallback(async (response: OptimizedPromptResponse) => {
+    try {
+      // Generate a title from the first few words of the original prompt
+      const title = prompt.length > 50 ? prompt.substring(0, 50) + '...' : prompt;
+      
+      // Determine if prompt should be public or private
+      // Free users (non-admin with limited credits) = public
+      // Paid users (admin or unlimited credits) = private
+      const isAdmin = currentUser.email === 'pratham.solanki30@gmail.com';
+      const isPublic = !isAdmin; // For now, all non-admin users are considered "free"
+      
+      const promptData = {
+        title,
+        originalPrompt: prompt,
+        optimizedPrompt: response.prompt,
+        suggestions: response.suggestions,
+        modelUsed: selectedModel.name,
+        imageData: image?.data,
+        imageMimeType: image?.mimeType,
+        isPublic
+      };
+
+      // Try to save to database first
+      await databaseService.savePrompt(currentUser.id, promptData);
+      console.log('Prompt saved to database');
+    } catch (error) {
+      console.error('Failed to save to database, using localStorage fallback');
+      
+      // Fallback to localStorage if database fails
+      const savedPromptsKey = `savedPrompts_${currentUser.email}`;
+      try {
+        const existingPrompts = JSON.parse(localStorage.getItem(savedPromptsKey) || '[]');
+        const newPrompt = {
+          id: Date.now().toString(),
+          title: prompt.length > 50 ? prompt.substring(0, 50) + '...' : prompt,
+          originalPrompt: prompt,
+          optimizedPrompt: response.prompt,
+          suggestions: response.suggestions,
+          modelUsed: selectedModel.name,
+          imageData: image?.data,
+          imageMimeType: image?.mimeType,
+          createdAt: new Date().toISOString(),
+          isPublic: currentUser.email !== 'pratham.solanki30@gmail.com'
+        };
+        
+        existingPrompts.unshift(newPrompt);
+        localStorage.setItem(savedPromptsKey, JSON.stringify(existingPrompts));
+        console.log('Prompt saved to localStorage');
+      } catch (localError) {
+        console.error('Failed to save prompt to localStorage:', localError);
+      }
+    }
+  }, [prompt, selectedModel, image, currentUser]);
+
   const handleGenerate = useCallback(async () => {
     if (!prompt.trim()) {
       setError("Please enter a prompt to optimize.");
@@ -73,14 +125,17 @@ const Dashboard: React.FC<DashboardProps> = ({ initialPrompt, credits, onUseCred
     try {
       const response = await optimizePrompt(prompt, [], image);
       setResult(response);
-      onUseCredit();
+      await onUseCredit();
+      
+      // Save the prompt automatically after successful generation
+      await savePromptToDatabase(response);
     } catch (e: any)
     {
       setError(e.message || "An unknown error occurred.");
     } finally {
       setIsLoading(false);
     }
-  }, [prompt, image, credits.count, onUseCredit]);
+  }, [prompt, image, credits.count, onUseCredit, savePromptToDatabase]);
   
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

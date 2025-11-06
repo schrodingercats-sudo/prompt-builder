@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { LogoIcon, CloseIcon, GithubIcon, GoogleIcon } from './Icons';
+import { LogoIcon, CloseIcon, GoogleIcon } from './Icons';
+import { authService, AuthUser } from '../services/authService';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onLoginSuccess: (user: { email:string }) => void;
+  onLoginSuccess: (user: AuthUser) => void;
 }
 
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }) => {
@@ -13,7 +14,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleAuth = (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
@@ -23,31 +24,28 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     }
 
     try {
-      const usersRaw = localStorage.getItem('promptifyUsers');
-      const users = usersRaw ? JSON.parse(usersRaw) : [];
+      let user: AuthUser;
       
       if (isSignUp) {
-        // Sign Up
-        const userExists = users.some((user: any) => user.email === email);
-        if (userExists) {
-          setError('An account with this email already exists.');
-          return;
-        }
-        // In a real app, password should be hashed.
-        const newUser = { email, password };
-        localStorage.setItem('promptifyUsers', JSON.stringify([...users, newUser]));
-        onLoginSuccess(newUser);
+        user = await authService.signUp(email, password);
       } else {
-        // Login
-        const user = users.find((user: any) => user.email === email);
-        if (user && user.password === password) {
-          onLoginSuccess(user);
-        } else {
-          setError('Invalid email or password.');
-        }
+        user = await authService.signIn(email, password);
       }
-    } catch (e) {
-      setError('An unexpected error occurred. Please try again.');
+      
+      onLoginSuccess(user);
+    } catch (e: any) {
+      setError(e.message || 'An unexpected error occurred. Please try again.');
+      console.error(e);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    try {
+      setError('');
+      const user = await authService.signInWithGoogle();
+      onLoginSuccess(user);
+    } catch (e: any) {
+      setError(e.message || 'Failed to sign in with Google.');
       console.error(e);
     }
   };
@@ -114,13 +112,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         </div>
 
         <div className="space-y-3">
-             <button className="w-full flex items-center justify-center gap-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50">
+             <button 
+                onClick={handleGoogleSignIn}
+                type="button"
+                className="w-full flex items-center justify-center gap-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+             >
                 <GoogleIcon className="h-5 w-5"/>
                 <span className="font-medium text-gray-700">Continue with Google</span>
-            </button>
-             <button className="w-full flex items-center justify-center gap-3 py-2.5 border border-gray-300 rounded-lg hover:bg-gray-50">
-                <GithubIcon className="h-5 w-5"/>
-                <span className="font-medium text-gray-700">Continue with GitHub</span>
             </button>
         </div>
 

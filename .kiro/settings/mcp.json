@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "supabase": {
+      "command": "uvx",
+      "args": ["mcp-server-supabase@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    },
+    "firebase": {
+      "command": "uvx",
+      "args": ["mcp-server-firebase@latest"],
+      "env": {
+        "FASTMCP_LOG_LEVEL": "ERROR"
+      },
+      "disabled": false,
+      "autoApprove": []
+    }
+  }
+}

@@ -7,17 +7,12 @@ import PromptDetailPage from './components/PromptDetailPage';
 import SettingsPage from './components/SettingsPage';
 import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
-import { Prompt } from './types';
+import { Prompt, CreditsState } from './types';
 import { LogoIcon } from './components/Icons';
+import { authService, AuthUser } from './services/authService';
+import { databaseService } from './services/databaseService';
 
-type User = {
-  email: string;
-};
 
-type CreditsState = {
-  count: number;
-  resetTime: number | null;
-};
 
 type PageState =
   | { name: 'dashboard' }
@@ -34,7 +29,8 @@ type InitialPrompt = {
 const ADMIN_EMAIL = 'pratham.solanki30@gmail.com';
 
 const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState<PageState>({ name: 'dashboard' });
   const [activeNav, setActiveNav] = useState('Home');
   const [initialPrompt, setInitialPrompt] = useState<InitialPrompt>(null);
@@ -46,6 +42,16 @@ const App: React.FC = () => {
 
   const isUserAdmin = currentUser?.email === ADMIN_EMAIL;
 
+  // Initialize auth state listener
+  useEffect(() => {
+    const unsubscribe = authService.onAuthStateChanged((user) => {
+      setCurrentUser(user);
+      setIsLoading(false);
+    });
+
+    return unsubscribe;
+  }, []);
+
   useEffect(() => {
     if (!currentUser) return;
 
@@ -54,42 +60,95 @@ const App: React.FC = () => {
       return;
     }
     
-    const creditsKey = `promptifyCredits_${currentUser.email}`;
-    try {
-      const savedCreditsRaw = localStorage.getItem(creditsKey);
-      if (savedCreditsRaw) {
-        const savedCredits = JSON.parse(savedCreditsRaw) as CreditsState;
-        if (savedCredits.resetTime && Date.now() > savedCredits.resetTime) {
-          const newCredits = { count: 2, resetTime: null };
-          localStorage.setItem(creditsKey, JSON.stringify(newCredits));
-          setCredits(newCredits);
-        } else {
-          setCredits(savedCredits);
+    // Load credits from database
+    const loadCredits = async () => {
+      try {
+        // First ensure user profile exists
+        await databaseService.getOrCreateUserProfile(currentUser);
+        
+        // Get current credits
+        let userCredits = await databaseService.getUserCredits(currentUser.id);
+        
+        // Check if credits need to be reset
+        if (userCredits.resetTime && Date.now() > userCredits.resetTime) {
+          userCredits = await databaseService.updateCredits(currentUser.id, {
+            ...userCredits,
+            count: 2,
+            resetTime: null
+          });
         }
-      } else {
-        localStorage.setItem(creditsKey, JSON.stringify({ count: 2, resetTime: null }));
-        setCredits({ count: 2, resetTime: null });
+        
+        setCredits(userCredits);
+      } catch (error) {
+        console.error("Database not set up yet, using localStorage fallback");
+        
+        // Fallback to localStorage until database is set up
+        // Use Firebase UID instead of email for better persistence
+        const creditsKey = `promptifyCredits_${currentUser.id}`;
+        const oldCreditsKey = `promptifyCredits_${currentUser.email}`;
+        
+        try {
+          // Check for existing credits with new key (Firebase UID)
+          let savedCreditsRaw = localStorage.getItem(creditsKey);
+          
+          // If not found, check old key (email) and migrate
+          if (!savedCreditsRaw) {
+            const oldCreditsRaw = localStorage.getItem(oldCreditsKey);
+            if (oldCreditsRaw) {
+              // Migrate from email-based to UID-based storage
+              localStorage.setItem(creditsKey, oldCreditsRaw);
+              localStorage.removeItem(oldCreditsKey);
+              savedCreditsRaw = oldCreditsRaw;
+            }
+          }
+          
+          if (savedCreditsRaw) {
+            const savedCredits = JSON.parse(savedCreditsRaw) as CreditsState;
+            if (savedCredits.resetTime && Date.now() > savedCredits.resetTime) {
+              const newCredits = { count: 2, resetTime: null };
+              localStorage.setItem(creditsKey, JSON.stringify(newCredits));
+              setCredits(newCredits);
+            } else {
+              setCredits(savedCredits);
+            }
+          } else {
+            const newCredits = { count: 2, resetTime: null };
+            localStorage.setItem(creditsKey, JSON.stringify(newCredits));
+            setCredits(newCredits);
+          }
+        } catch (localError) {
+          console.error("localStorage fallback failed:", localError);
+          setCredits({ count: 2, resetTime: null });
+        }
       }
-    } catch (error) {
-      console.error("Failed to manage credits in localStorage:", error);
-      setCredits({ count: 2, resetTime: null });
-    }
+    };
+
+    loadCredits();
   }, [currentUser, isUserAdmin]);
 
-  const handleUseCredit = useCallback(() => {
+  const handleUseCredit = useCallback(async () => {
     if (!currentUser || isUserAdmin) return;
     
-    const creditsKey = `promptifyCredits_${currentUser.email}`;
-    setCredits(prevCredits => {
-      const newCount = Math.max(0, prevCredits.count - 1);
-      const newResetTime = newCount === 0 && !prevCredits.resetTime ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
-      const newCredits: CreditsState = {
-        count: newCount,
-        resetTime: newResetTime,
-      };
-      localStorage.setItem(creditsKey, JSON.stringify(newCredits));
-      return newCredits;
-    });
+    try {
+      const updatedCredits = await databaseService.useCredit(currentUser.id);
+      setCredits(updatedCredits);
+    } catch (error) {
+      console.error("Database not set up yet, using localStorage fallback");
+      
+      // Fallback to localStorage behavior until database is set up
+      // Use Firebase UID instead of email for better persistence
+      const creditsKey = `promptifyCredits_${currentUser.id}`;
+      setCredits(prevCredits => {
+        const newCount = Math.max(0, prevCredits.count - 1);
+        const newResetTime = newCount === 0 && !prevCredits.resetTime ? Date.now() + 24 * 60 * 60 * 1000 : prevCredits.resetTime;
+        const newCredits: CreditsState = {
+          count: newCount,
+          resetTime: newResetTime,
+        };
+        localStorage.setItem(creditsKey, JSON.stringify(newCredits));
+        return newCredits;
+      });
+    }
   }, [currentUser, isUserAdmin]);
   
   const handleAttemptStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
@@ -104,7 +163,7 @@ const App: React.FC = () => {
     }
   }, [currentUser]);
 
-  const handleLoginSuccess = useCallback((user: User) => {
+  const handleLoginSuccess = useCallback((user: AuthUser) => {
     setCurrentUser(user);
     setIsAuthModalOpen(false);
     setInitialPrompt(pendingPrompt);
@@ -113,9 +172,14 @@ const App: React.FC = () => {
     setPendingPrompt(null);
   }, [pendingPrompt]);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = useCallback(async () => {
+    try {
+      await authService.signOut();
       setCurrentUser(null);
-      setPage({ name: 'dashboard' }); // Reset to default page for next login
+      setPage({ name: 'dashboard' });
+    } catch (error) {
+      console.error('Failed to sign out:', error);
+    }
   }, []);
 
   const handleNavigateToCommunity = useCallback(() => {
@@ -156,20 +220,28 @@ const App: React.FC = () => {
     setIsSidebarOpen(false);
   }, []);
   
-  const handleDeleteAccount = useCallback(() => {
+  const handleDeleteAccount = useCallback(async () => {
     if (!currentUser) return;
     try {
-        const usersRaw = localStorage.getItem('promptifyUsers');
-        let users = usersRaw ? JSON.parse(usersRaw) : [];
-        users = users.filter((u: User) => u.email !== currentUser.email);
-        localStorage.setItem('promptifyUsers', JSON.stringify(users));
+        // TODO: Implement proper account deletion with Supabase
+        // For now, just clean up local storage and sign out
+        localStorage.removeItem(`savedPrompts_${currentUser.email}`);
+        localStorage.removeItem(`promptifyCredits_${currentUser.email}`);
+        await handleLogout();
     } catch (e) {
-        console.error("Failed to remove user from database", e);
+        console.error("Failed to delete account", e);
     }
-    localStorage.removeItem(`savedPrompts_${currentUser.email}`);
-    localStorage.removeItem(`promptifyCredits_${currentUser.email}`);
-    handleLogout();
   }, [currentUser, handleLogout]);
+
+
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (
@@ -183,11 +255,11 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (page.name) {
       case 'dashboard':
-        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} />;
+        return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} currentUser={currentUser} />;
       case 'community':
         return <CommunityPage onNavigateToLanding={handleNavigateToLanding} onSelectPrompt={handleSelectPrompt} />;
       case 'myPrompts':
-        return <MyPromptsPage currentUser={currentUser} onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
+        return <MyPromptsPage currentUser={currentUser!} onSelectPrompt={handleSelectPrompt} onNavigateToCommunity={handleNavigateToCommunity} />;
       case 'promptDetail':
         return <PromptDetailPage currentUser={currentUser} prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
       case 'settings':
@@ -208,6 +280,7 @@ const App: React.FC = () => {
         setIsOpen={setIsSidebarOpen}
         credits={credits}
         onLogout={handleLogout}
+
       />
       <main className="flex-1 relative overflow-y-auto">
         <div className="md:hidden p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-sm z-10">
