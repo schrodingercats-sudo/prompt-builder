@@ -14,12 +14,14 @@ export interface AuthUser {
   id: string;
   email: string;
   displayName?: string;
+  photoURL?: string;
 }
 
 export class AuthService {
   // Sign up with email and password
   async signUp(email: string, password: string): Promise<AuthUser> {
     try {
+      if (!auth) throw new Error('Authentication is not configured.');
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return this.mapFirebaseUser(userCredential.user);
     } catch (error: any) {
@@ -30,6 +32,7 @@ export class AuthService {
   // Sign in with email and password
   async signIn(email: string, password: string): Promise<AuthUser> {
     try {
+      if (!auth) throw new Error('Authentication is not configured.');
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return this.mapFirebaseUser(userCredential.user);
     } catch (error: any) {
@@ -40,6 +43,7 @@ export class AuthService {
   // Sign in with Google
   async signInWithGoogle(): Promise<AuthUser> {
     try {
+      if (!auth || !googleProvider) throw new Error('Authentication is not configured.');
       const result = await signInWithPopup(auth, googleProvider);
       return this.mapFirebaseUser(result.user);
     } catch (error: any) {
@@ -50,6 +54,7 @@ export class AuthService {
   // Sign out
   async signOut(): Promise<void> {
     try {
+      if (!auth) return; // no-op if auth is unavailable
       await signOut(auth);
     } catch (error: any) {
       throw new Error(error.message);
@@ -58,12 +63,18 @@ export class AuthService {
 
   // Get current user
   getCurrentUser(): AuthUser | null {
+    if (!auth) return null;
     const user = auth.currentUser;
     return user ? this.mapFirebaseUser(user) : null;
   }
 
   // Listen to auth state changes
   onAuthStateChanged(callback: (user: AuthUser | null) => void): () => void {
+    if (!auth) {
+      // Immediately report unauthenticated and provide a no-op unsubscribe
+      callback(null);
+      return () => {};
+    }
     return onAuthStateChanged(auth, (user) => {
       const authUser = user ? this.mapFirebaseUser(user) : null;
       callback(authUser);
@@ -73,6 +84,7 @@ export class AuthService {
   // Send password reset email
   async sendPasswordReset(email: string): Promise<void> {
     try {
+      if (!auth) throw new Error('Authentication is not configured.');
       await sendPasswordResetEmail(auth, email, {
         url: window.location.origin, // Return URL after password reset
         handleCodeInApp: false
@@ -111,6 +123,7 @@ export class AuthService {
       id: user.uid,
       email: user.email!,
       displayName: user.displayName || undefined,
+      photoURL: user.photoURL || undefined,
     };
   }
 }

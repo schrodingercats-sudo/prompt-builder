@@ -4,18 +4,11 @@ import {
   CreditCardIcon, SparklesIcon, PlusIcon, WarningIcon, ChevronDownIcon, GlobeIcon,
   SettingsIcon, TrashIcon, ChevronUpIcon, LogoutIcon, LogoIcon
 } from './Icons';
-
-type User = {
-  email: string;
-};
-
-type CreditsState = {
-  count: number;
-  resetTime: number | null;
-};
+import { AuthUser } from '../services/authService';
+import { CreditsState } from '../types';
 
 interface SidebarProps {
-  currentUser: User;
+  currentUser: AuthUser;
   activeNav: string;
   setActiveNav: (nav: string) => void;
   onNewPrompt: () => void;
@@ -25,6 +18,46 @@ interface SidebarProps {
   onLogout: () => void;
 
 }
+
+// User Avatar Component - Shows Google photo or initial letter
+const UserAvatar: React.FC<{ user: AuthUser; size?: number }> = ({ user, size = 32 }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const profilePicture = user.photoURL; // Google profile picture from Firebase
+  const initial = user.displayName?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase();
+  
+  // Generate a consistent color based on email
+  const getColorFromEmail = (email: string) => {
+    const colors = [
+      'bg-purple-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500',
+      'bg-red-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
+    ];
+    const index = email.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
+  if (profilePicture && !imageError) {
+    return (
+      <img 
+        src={profilePicture} 
+        alt="User avatar" 
+        className={`rounded-full flex-shrink-0`}
+        style={{ width: size, height: size }}
+        onError={() => setImageError(true)}
+      />
+    );
+  }
+
+  // Show initial letter avatar
+  return (
+    <div 
+      className={`rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold ${getColorFromEmail(user.email)}`}
+      style={{ width: size, height: size, fontSize: size * 0.5 }}
+    >
+      {initial}
+    </div>
+  );
+};
 
 const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav, onNewPrompt, isOpen, setIsOpen, credits, onLogout }) => {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -212,9 +245,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav,
             )}
             <button onClick={() => setIsUserMenuOpen(!isUserMenuOpen)} className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-100 transition-colors">
                <div className="flex items-center gap-2 overflow-hidden">
-                <img src={`https://i.pravatar.cc/40?u=${currentUser.email}`} alt="User avatar" className="rounded-full w-8 h-8 flex-shrink-0" />
+                <UserAvatar user={currentUser} size={32} />
                 <div className="truncate">
-                    <p className="font-semibold text-sm text-left truncate">{currentUser.email.split('@')[0]}</p>
+                    <p className="font-semibold text-sm text-left truncate">{currentUser.displayName || currentUser.email.split('@')[0]}</p>
                     <p className="text-xs text-gray-500 text-left truncate">{currentUser.email}</p>
                 </div>
               </div>
