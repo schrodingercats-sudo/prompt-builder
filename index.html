@@ -1,79 +1,111 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>Promptimzer - Free AI Prompt Optimizer | Enhance Your AI Prompts Instantly</title>
-    <meta name="title" content="Promptimzer - Free AI Prompt Optimizer | Enhance Your AI Prompts Instantly" />
-    <meta name="description" content="Optimize your AI prompts instantly using Promptimzer — the best free prompt optimizer built for creators and coders. Transform basic prompts into detailed, effective instructions for AI tools like ChatGPT, Claude, and more." />
-    <meta name="keywords" content="AI prompt optimizer, promptimzer, chatgpt prompt tools, free ai tools, optimize prompts, prompt engineering, AI prompt generator, prompt enhancer, lovable ai, cursor ai, v0 vercel, replit ai, bolt ai" />
-    <link rel="canonical" href="https://promptimzer.vercel.app/" />
-    <meta name="author" content="Promptimzer" />
-    <meta name="robots" content="index, follow" />
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://promptimzer.vercel.app/" />
-    <meta property="og:title" content="Promptimzer - Free AI Prompt Optimizer" />
-    <meta property="og:description" content="Transform your basic prompts into detailed, effective instructions for AI tools. Free prompt optimization for creators and developers." />
-    <meta property="og:image" content="https://promptimzer.vercel.app/og-image.png" />
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://promptimzer.vercel.app/" />
-    <meta property="twitter:title" content="Promptimzer - Free AI Prompt Optimizer" />
-    <meta property="twitter:description" content="Transform your basic prompts into detailed, effective instructions for AI tools. Free prompt optimization for creators and developers." />
-    <meta property="twitter:image" content="https://promptimzer.vercel.app/og-image.png" />
-    
-    <!-- Additional SEO -->
-    <meta name="theme-color" content="#8B5CF6" />
-    <meta name="application-name" content="Promptimzer" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-    <meta name="apple-mobile-web-app-title" content="Promptimzer" />
-    
-    <!-- Google Search Console Verification -->
-    <meta name="google-site-verification" content="google3690ce1ff1168d6d" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
-    <style>
-      html {
-        scroll-behavior: smooth;
-        scroll-padding-top: 112px;
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Primary Meta Tags -->
+  <title>Promptimzer - Free AI Prompt Optimizer | Enhance Your AI Prompts Instantly</title>
+  <meta name="title" content="Promptimzer - Free AI Prompt Optimizer | Enhance Your AI Prompts Instantly" />
+  <meta name="description"
+    content="Optimize your AI prompts instantly using Promptimzer — the best free prompt optimizer built for creators and coders. Transform basic prompts into detailed, effective instructions for AI tools like ChatGPT, Claude, and more." />
+  <meta name="keywords"
+    content="AI prompt optimizer, promptimzer, chatgpt prompt tools, free ai tools, optimize prompts, prompt engineering, AI prompt generator, prompt enhancer, lovable ai, cursor ai, v0 vercel, replit ai, bolt ai" />
+  <link rel="canonical" href="https://promptimzer.vercel.app/" />
+  <meta name="author" content="Promptimzer" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://promptimzer.vercel.app/" />
+  <meta property="og:title" content="Promptimzer - Free AI Prompt Optimizer" />
+  <meta property="og:description"
+    content="Transform your basic prompts into detailed, effective instructions for AI tools. Free prompt optimization for creators and developers." />
+  <meta property="og:image" content="https://promptimzer.vercel.app/og-image.png" />
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image" />
+  <meta property="twitter:url" content="https://promptimzer.vercel.app/" />
+  <meta property="twitter:title" content="Promptimzer - Free AI Prompt Optimizer" />
+  <meta property="twitter:description"
+    content="Transform your basic prompts into detailed, effective instructions for AI tools. Free prompt optimization for creators and developers." />
+  <meta property="twitter:image" content="https://promptimzer.vercel.app/og-image.png" />
+
+  <!-- Additional SEO -->
+  <meta name="theme-color" content="#8B5CF6" />
+  <meta name="application-name" content="Promptimzer" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Promptimzer" />
+
+  <!-- Google Search Console Verification -->
+  <meta name="google-site-verification" content="google3690ce1ff1168d6d" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700&display=swap"
+    rel="stylesheet">
+  <style>
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 112px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+
+    .font-serif {
+      font-family: 'Playfair Display', serif;
+    }
+
+    @keyframes scroll {
+      from {
+        transform: translateX(0);
       }
-      body {
-        font-family: 'Inter', sans-serif;
+
+      to {
+        transform: translateX(-50%);
       }
-      .font-serif {
-        font-family: 'Playfair Display', serif;
+    }
+
+    .animate-scroll {
+      animation: scroll 25s linear infinite;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
       }
-      @keyframes scroll {
-        from { transform: translateX(0); }
-        to { transform: translateX(-50%); }
+
+      to {
+        opacity: 1;
       }
-      .animate-scroll {
-        animation: scroll 25s linear infinite;
+    }
+
+    .animate-fade-in {
+      animation: fade-in 0.5s ease-out;
+    }
+
+    @keyframes fade-in-up {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
       }
-      @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
       }
-      .animate-fade-in {
-        animation: fade-in 0.5s ease-out;
-      }
-      @keyframes fade-in-up {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-fade-in-up {
-        animation: fade-in-up 0.2s ease-out;
-      }
-    </style>
+    }
+
+    .animate-fade-in-up {
+      animation: fade-in-up 0.2s ease-out;
+    }
+  </style>
   <script type="importmap">
 {
   "imports": {
@@ -85,8 +117,10 @@
 }
 </script>
 </head>
-  <body class="bg-[#F9FAFB]">
-    <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
-  </body>
+
+<body class="bg-[#F9FAFB]">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
 </html>
