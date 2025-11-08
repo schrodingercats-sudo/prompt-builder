@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { TrashIcon } from './Icons';
 import { authService } from '../services/authService';
 import { AuthUser } from '../services/authService';
+import SubscriptionManagementModal from './SubscriptionManagementModal';
 
 interface SettingsPageProps {
   currentUser: AuthUser;
   onDeleteAccount: () => void;
+  onSubscriptionChange?: () => void;
 }
 
-const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onDeleteAccount }) => {
+const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onDeleteAccount, onSubscriptionChange }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
 
   const handleSubscription = () => {
-    alert('Subscription management is not yet implemented.');
+    setIsSubscriptionModalOpen(true);
   };
 
   const handleResetPassword = async () => {
@@ -102,6 +105,13 @@ const SettingsPage: React.FC<SettingsPageProps> = ({ currentUser, onDeleteAccoun
             </div>
         </div>
       </div>
+
+      <SubscriptionManagementModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+        currentUser={currentUser}
+        onSubscriptionChange={onSubscriptionChange}
+      />
     </div>
   );
 };

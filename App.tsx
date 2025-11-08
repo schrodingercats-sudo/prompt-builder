@@ -350,7 +350,7 @@ const App: React.FC = () => {
       case 'promptDetail':
         return <PromptDetailPage currentUser={currentUser} prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
       case 'settings':
-        return <SettingsPage currentUser={currentUser!} onDeleteAccount={handleDeleteAccount} />;
+        return <SettingsPage currentUser={currentUser!} onDeleteAccount={handleDeleteAccount} onSubscriptionChange={handleUpgradeSuccess} />;
       default:
         return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} currentUser={currentUser!} />;
     }
