@@ -281,6 +281,66 @@ export class DatabaseService {
       user_display_name: prompt.users.display_name
     }));
   }
+
+  // Subscription Management
+  async updateUserSubscription(firebaseUid: string, subscriptionData: {
+    subscription_status: string;
+    subscription_id: string;
+    subscription_expires_at: string;
+  }): Promise<void> {
+    const profile = await this.getUserProfile(firebaseUid);
+    if (!profile) {
+      throw new Error('User profile not found');
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({
+        subscription_status: subscriptionData.subscription_status,
+        subscription_id: subscriptionData.subscription_id,
+        subscription_expires_at: subscriptionData.subscription_expires_at,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', profile.id);
+
+    if (error) {
+      throw new Error(`Failed to update subscription: ${error.message}`);
+    }
+  }
+
+  async getUserSubscriptionStatus(firebaseUid: string): Promise<{
+    status: string;
+    expiresAt: string | null;
+  }> {
+    const profile = await this.getUserProfile(firebaseUid);
+    if (!profile) {
+      return { status: 'free', expiresAt: null };
+    }
+
+    return {
+      status: profile.subscription_status || 'free',
+      expiresAt: profile.subscription_expires_at || null
+    };
+  }
+
+  async cancelSubscription(firebaseUid: string): Promise<void> {
+    const profile = await this.getUserProfile(firebaseUid);
+    if (!profile) {
+      throw new Error('User profile not found');
+    }
+
+    const { error } = await supabase
+      .from('users')
+      .update({
+        subscription_status: 'cancelled',
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', profile.id);
+
+    if (error) {
+      throw new Error(`Failed to cancel subscription: ${error.message}`);
+    }
+  }
 }
 
 export const databaseService = new DatabaseService();

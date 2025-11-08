@@ -30,7 +30,7 @@ export interface DbUser {
   display_name?: string;
   email_verified?: boolean;
   verification_sent_at?: string;
-  subscription_status?: string;
+  subscription_status: string;
   subscription_id?: string;
   subscription_expires_at?: string;
   created_at: string;

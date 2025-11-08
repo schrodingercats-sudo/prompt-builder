@@ -45,8 +45,10 @@ const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [credits, setCredits] = useState<CreditsState>({ count: 2, resetTime: null });
   const [isEmailVerified, setIsEmailVerified] = useState(false);
+  const [subscriptionStatus, setSubscriptionStatus] = useState<string>('free');
 
   const isUserAdmin = currentUser?.email === ADMIN_EMAIL;
+  const isProUser = subscriptionStatus === 'pro' || isUserAdmin;
 
   // Initialize auth state listener
   useEffect(() => {
@@ -72,7 +74,19 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    if (isUserAdmin) {
+    // Load subscription status
+    const loadSubscription = async () => {
+      try {
+        const subStatus = await databaseService.getUserSubscriptionStatus(currentUser.id);
+        setSubscriptionStatus(subStatus.status);
+      } catch (error) {
+        console.error('Failed to load subscription status:', error);
+      }
+    };
+
+    loadSubscription();
+
+    if (isUserAdmin || subscriptionStatus === 'pro') {
       setCredits({ count: Infinity, resetTime: null });
       return;
     }
@@ -183,7 +197,7 @@ const App: React.FC = () => {
         return newCredits;
       });
     }
-  }, [currentUser, isUserAdmin, isEmailVerified]);
+  }, [currentUser, isUserAdmin, isEmailVerified, subscriptionStatus]);
 
   const handleAttemptStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
     const promptData = { text, image };
@@ -219,6 +233,19 @@ const App: React.FC = () => {
     setIsEmailVerified(true);
     setIsEmailVerificationModalOpen(false);
   }, []);
+
+  const handleUpgradeSuccess = useCallback(async () => {
+    // Reload subscription status
+    if (currentUser) {
+      try {
+        const subStatus = await databaseService.getUserSubscriptionStatus(currentUser.id);
+        setSubscriptionStatus(subStatus.status);
+        setCredits({ count: Infinity, resetTime: null });
+      } catch (error) {
+        console.error('Failed to reload subscription:', error);
+      }
+    }
+  }, [currentUser]);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -362,7 +389,12 @@ const App: React.FC = () => {
         onClose={() => setIsEmailVerificationModalOpen(false)}
         onVerified={handleEmailVerified}
       />
-      <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} />
+      <UpgradeModal 
+        isOpen={isUpgradeModalOpen} 
+        onClose={() => setIsUpgradeModalOpen(false)}
+        currentUser={currentUser}
+        onUpgradeSuccess={handleUpgradeSuccess}
+      />
     </div>
   );
 };
