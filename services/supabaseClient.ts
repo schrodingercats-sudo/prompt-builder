@@ -28,6 +28,11 @@ export interface DbUser {
   firebase_uid: string;
   email: string;
   display_name?: string;
+  email_verified?: boolean;
+  verification_sent_at?: string;
+  subscription_status?: string;
+  subscription_id?: string;
+  subscription_expires_at?: string;
   created_at: string;
   updated_at: string;
 }

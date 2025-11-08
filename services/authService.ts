@@ -5,6 +5,7 @@ import {
   signOut,
   onAuthStateChanged,
   sendPasswordResetEmail,
+  sendEmailVerification,
   deleteUser,
   User
 } from 'firebase/auth';
@@ -100,6 +101,49 @@ export class AuthService {
       }
       throw new Error(error.message);
     }
+  }
+
+  // Send email verification
+  async sendVerificationEmail(): Promise<void> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No user is currently signed in');
+      }
+      if (user.emailVerified) {
+        throw new Error('Email is already verified');
+      }
+      await sendEmailVerification(user, {
+        url: window.location.origin,
+        handleCodeInApp: false
+      });
+    } catch (error: any) {
+      if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many requests. Please try again later.');
+      }
+      throw new Error(error.message);
+    }
+  }
+
+  // Check if email is verified
+  async checkEmailVerified(): Promise<boolean> {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        throw new Error('No user is currently signed in');
+      }
+      // Reload user to get latest verification status
+      await user.reload();
+      return user.emailVerified;
+    } catch (error: any) {
+      throw new Error(error.message);
+    }
+  }
+
+  // Get email verification status
+  isEmailVerified(): boolean {
+    const user = auth.currentUser;
+    return user ? user.emailVerified : false;
   }
 
   // Delete user account

@@ -7,6 +7,7 @@ import PromptDetailPage from './components/PromptDetailPage';
 import SettingsPage from './components/SettingsPage';
 import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
+import EmailVerificationModal from './components/EmailVerificationModal';
 import UpgradeModal from './components/UpgradeModal';
 import { Prompt, CreditsState } from './types';
 import { LogoIcon } from './components/Icons';
@@ -38,10 +39,12 @@ const App: React.FC = () => {
   const [initialPrompt, setInitialPrompt] = useState<InitialPrompt>(null);
   const [pendingPrompt, setPendingPrompt] = useState<InitialPrompt>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isEmailVerificationModalOpen, setIsEmailVerificationModalOpen] = useState(false);
   const [isUpgradeModalOpen, setIsUpgradeModalOpen] = useState(false);
   const [dashboardKey, setDashboardKey] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [credits, setCredits] = useState<CreditsState>({ count: 2, resetTime: null });
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
 
   const isUserAdmin = currentUser?.email === ADMIN_EMAIL;
 
@@ -50,6 +53,17 @@ const App: React.FC = () => {
     const unsubscribe = authService.onAuthStateChanged((user) => {
       setCurrentUser(user);
       setIsLoading(false);
+      
+      // Check email verification status
+      if (user) {
+        const verified = authService.isEmailVerified();
+        setIsEmailVerified(verified);
+        
+        // Show verification modal if not verified
+        if (!verified) {
+          setIsEmailVerificationModalOpen(true);
+        }
+      }
     });
 
     return unsubscribe;
@@ -131,6 +145,12 @@ const App: React.FC = () => {
 
   const handleUseCredit = useCallback(async () => {
     if (!currentUser || isUserAdmin) return;
+    
+    // Block credit usage if email not verified
+    if (!isEmailVerified) {
+      setIsEmailVerificationModalOpen(true);
+      throw new Error('Please verify your email before using credits.');
+    }
 
     try {
       const updatedCredits = await databaseService.useCredit(currentUser.id);
@@ -163,7 +183,7 @@ const App: React.FC = () => {
         return newCredits;
       });
     }
-  }, [currentUser, isUserAdmin]);
+  }, [currentUser, isUserAdmin, isEmailVerified]);
 
   const handleAttemptStart = useCallback((text: string, image: { data: string; mimeType: string } | null) => {
     const promptData = { text, image };
@@ -180,11 +200,25 @@ const App: React.FC = () => {
   const handleLoginSuccess = useCallback((user: AuthUser) => {
     setCurrentUser(user);
     setIsAuthModalOpen(false);
+    
+    // Check email verification
+    const verified = authService.isEmailVerified();
+    setIsEmailVerified(verified);
+    
+    if (!verified) {
+      setIsEmailVerificationModalOpen(true);
+    }
+    
     setInitialPrompt(pendingPrompt);
     setPage({ name: 'dashboard' });
     setActiveNav('Home');
     setPendingPrompt(null);
   }, [pendingPrompt]);
+
+  const handleEmailVerified = useCallback(() => {
+    setIsEmailVerified(true);
+    setIsEmailVerificationModalOpen(false);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     try {
@@ -322,6 +356,12 @@ const App: React.FC = () => {
         </div>
         {renderContent()}
       </main>
+      <EmailVerificationModal 
+        isOpen={isEmailVerificationModalOpen} 
+        userEmail={currentUser?.email || ''} 
+        onClose={() => setIsEmailVerificationModalOpen(false)}
+        onVerified={handleEmailVerified}
+      />
       <UpgradeModal isOpen={isUpgradeModalOpen} onClose={() => setIsUpgradeModalOpen(false)} />
     </div>
   );

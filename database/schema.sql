@@ -7,6 +7,11 @@ CREATE TABLE IF NOT EXISTS users (
   firebase_uid TEXT UNIQUE NOT NULL,
   email TEXT NOT NULL,
   display_name TEXT,
+  email_verified BOOLEAN DEFAULT FALSE,
+  verification_sent_at TIMESTAMP WITH TIME ZONE,
+  subscription_status TEXT DEFAULT 'free',
+  subscription_id TEXT,
+  subscription_expires_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -22,7 +27,7 @@ CREATE TABLE IF NOT EXISTS prompts (
   model_used TEXT NOT NULL,
   image_data TEXT,
   image_mime_type TEXT,
-  is_public BOOLEAN DEFAULT false,
+  is_public BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

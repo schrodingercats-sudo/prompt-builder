@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { LogoIcon, CloseIcon, GoogleIcon } from './Icons';
 import { authService, AuthUser } from '../services/authService';
 import { blacklistService } from '../services/blacklistService';
+import { emailValidationService } from '../services/emailValidationService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
   const [isResetMode, setIsResetMode] = useState(false);
   const [resetMessage, setResetMessage] = useState('');
 
@@ -24,6 +26,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     if (!email || !password) {
         setError('Please fill in all fields.');
         return;
+    }
+
+    // Validate email format and check for disposable emails
+    const emailValidation = emailValidationService.validateEmail(email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error || 'Invalid email address.');
+      return;
     }
 
     // Check if email is blacklisted (for both sign up and sign in)
@@ -37,6 +46,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       
       if (isSignUp) {
         user = await authService.signUp(email, password);
+        // Send verification email after signup
+        try {
+          await authService.sendVerificationEmail();
+          setMessage('Account created! Please check your email (including spam folder) to verify your account.');
+        } catch (verifyError: any) {
+          console.error('Failed to send verification email:', verifyError);
+          // Don't block login if verification email fails
+        }
       } else {
         user = await authService.signIn(email, password);
       }
@@ -80,7 +97,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
 
     try {
       await authService.sendPasswordReset(email);
-      setResetMessage('Password reset email sent! Check your inbox.');
+      setResetMessage('Password reset email sent! Please check your inbox and spam folder.');
     } catch (e: any) {
       setError(e.message || 'Failed to send password reset email.');
       console.error(e);
@@ -91,6 +108,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     setEmail('');
     setPassword('');
     setError('');
+    setMessage('');
     setResetMessage('');
     setIsResetMode(false);
     setIsSignUp(false);

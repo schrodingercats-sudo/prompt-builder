@@ -21,6 +21,11 @@ export interface UserProfile {
   id: string;
   email: string;
   display_name?: string;
+  email_verified?: boolean;
+  verification_sent_at?: string;
+  subscription_status?: string;
+  subscription_id?: string;
+  subscription_expires_at?: string;
   created_at: string;
   updated_at: string;
 }
@@ -38,6 +43,8 @@ export interface SavedPrompt {
   is_public?: boolean;
   created_at: string;
   updated_at: string;
+  user_email?: string;
+  user_display_name?: string;
 }
 
 export interface CreditsState {
