@@ -111,9 +111,10 @@ export const LogoIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 export const LovableAiIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-  </svg>
+  <img src="https://lovable.dev/logo.png" alt="Lovable AI Logo" className={className} onError={(e) => {
+    e.currentTarget.style.display = 'none';
+    e.currentTarget.parentElement?.classList.add('fallback-icon');
+  }} />
 );
 
 export const VercelIcon: React.FC<IconProps> = ({ className }) => (
@@ -123,15 +124,17 @@ export const VercelIcon: React.FC<IconProps> = ({ className }) => (
 );
 
 export const ReplitIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M4 4h7v7H4V4zm0 9h7v7H4v-7zm9-9h7v7h-7V4zm0 9h7v7h-7v-7z"/>
-  </svg>
+  <img src="https://replit.com/public/images/logo-small.png" alt="Replit AI Logo" className={className} onError={(e) => {
+    e.currentTarget.style.display = 'none';
+    e.currentTarget.parentElement?.classList.add('fallback-icon');
+  }} />
 );
 
 export const CursorIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/>
-  </svg>
+  <img src="https://cursor.sh/brand/icon.svg" alt="Cursor AI Logo" className={className} onError={(e) => {
+    e.currentTarget.style.display = 'none';
+    e.currentTarget.parentElement?.classList.add('fallback-icon');
+  }} />
 );
 
 export const BoltIcon: React.FC<IconProps> = ({ className }) => (
