@@ -103,44 +103,27 @@ export const WarningIcon: React.FC<IconProps> = ({ className }) => (
 
 // New & Updated Icons
 export const LogoIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor" opacity="0.3"/>
-    <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-    <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-  </svg>
+  <img src="https://obliged-red-tnfhnynopx.edgeone.app/boo%20chat.png" alt="Promptify Logo" className={className} />
 );
 
 export const LovableAiIcon: React.FC<IconProps> = ({ className }) => (
-  <img src="https://lovable.dev/logo.png" alt="Lovable AI Logo" className={className} onError={(e) => {
-    e.currentTarget.style.display = 'none';
-    e.currentTarget.parentElement?.classList.add('fallback-icon');
-  }} />
+  <img src="https://lovable.edgeone.app/lovable-icon-bg-light.png" alt="Lovable AI Logo" className={className} />
 );
 
 export const VercelIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M12 2L2 22h20L12 2z"/>
-  </svg>
+  <img src="https://vercelai.edgeone.app/v0-logo-png_seeklogo-605781.png" alt="Vercel v0 Logo" className={className} />
 );
 
 export const ReplitIcon: React.FC<IconProps> = ({ className }) => (
-  <img src="https://replit.com/public/images/logo-small.png" alt="Replit AI Logo" className={className} onError={(e) => {
-    e.currentTarget.style.display = 'none';
-    e.currentTarget.parentElement?.classList.add('fallback-icon');
-  }} />
+  <img src="https://replit.edgeone.app/2048px-New_Replit_Logo.svg.png" alt="Replit AI Logo" className={className} />
 );
 
 export const CursorIcon: React.FC<IconProps> = ({ className }) => (
-  <img src="https://cursor.sh/brand/icon.svg" alt="Cursor AI Logo" className={className} onError={(e) => {
-    e.currentTarget.style.display = 'none';
-    e.currentTarget.parentElement?.classList.add('fallback-icon');
-  }} />
+  <img src="https://cursor.edgeone.app/cursor-logo-icon-freelogovectors.png" alt="Cursor AI Logo" className={className} />
 );
 
 export const BoltIcon: React.FC<IconProps> = ({ className }) => (
-  <svg className={className} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/>
-  </svg>
+  <img src="https://boltai.edgeone.app/bolt-new-icon-filled-256.png" alt="Bolt AI Logo" className={className} />
 );
 
 export const ArrowRightIcon: React.FC<IconProps> = ({ className }) => (
