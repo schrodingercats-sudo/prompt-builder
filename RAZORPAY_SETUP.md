@@ -6,7 +6,7 @@ Promptify now uses Razorpay for secure payment processing. Users can upgrade to 
 ## Subscription Plans
 
 ### Pro Monthly
-- **Price**: ₹499/month
+- **Price**: ₹100/month
 - **Features**:
   - Unlimited prompt optimizations
   - Private prompts
@@ -15,7 +15,7 @@ Promptify now uses Razorpay for secure payment processing. Users can upgrade to 
   - No daily credit limits
 
 ### Pro Yearly
-- **Price**: ₹4999/year (Save ₹1000)
+- **Price**: ₹1000/year (Save ₹200)
 - **Features**: Same as monthly + annual savings
 
 ## Setup Instructions
@@ -220,13 +220,13 @@ Webhook URL: `https://promptimzer.vercel.app/api/razorpay-webhook`
 ## Revenue Tracking
 
 ### Monthly Revenue Estimate
-- 10 users × ₹499 = ₹4,990/month
-- 50 users × ₹499 = ₹24,950/month
-- 100 users × ₹499 = ₹49,900/month
+- 10 users × ₹100 = ₹1,000/month
+- 50 users × ₹100 = ₹5,000/month
+- 100 users × ₹100 = ₹10,000/month
 
 ### Yearly Revenue Boost
 - Yearly plan encourages commitment
-- ₹1000 discount still profitable
+- ₹200 discount still profitable
 - Better cash flow upfront
 
 ## Next Steps

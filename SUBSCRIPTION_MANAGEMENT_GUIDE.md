@@ -16,7 +16,7 @@ Users can now manage their subscriptions directly from the Settings page. This i
 ### 2. Upgrade to Pro
 **For Free Users:**
 - Click "Manage Subscription" in Settings
-- Choose between Monthly (₹499) or Yearly (₹4999)
+- Choose between Monthly (₹100) or Yearly (₹1000)
 - Review Pro features
 - Click "Upgrade to Pro"
 - Complete payment via Razorpay

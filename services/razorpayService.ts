@@ -44,7 +44,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'pro_monthly',
     name: 'Pro Monthly',
-    price: 499, // ₹499
+    price: 100, // ₹100
     currency: 'INR',
     duration: '1 month',
     features: [
@@ -58,7 +58,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
   {
     id: 'pro_yearly',
     name: 'Pro Yearly',
-    price: 4999, // ₹4999 (save ₹1000)
+    price: 1000, // ₹1000 (save ₹200)
     currency: 'INR',
     duration: '1 year',
     features: [
@@ -67,7 +67,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Priority support',
       'Advanced AI models',
       'No daily credit limits',
-      'Save ₹1000 per year'
+      'Save ₹200 per year'
     ]
   }
 ];

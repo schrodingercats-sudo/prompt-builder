@@ -442,7 +442,7 @@ Users begin their journey with a welcoming landing page that guides them through
                 <p className="text-center font-semibold bg-purple-500 text-white py-1 px-3 rounded-full w-fit mx-auto text-sm">Most Popular</p>
                 <h3 className="text-2xl font-bold mt-4">Pro</h3>
                 <p className="mt-2 text-gray-300">For serious builders</p>
-                <p className="mt-8 text-5xl font-extrabold">$29 <span className="text-xl font-medium text-gray-400">/ month</span></p>
+                <p className="mt-8 text-5xl font-extrabold">₹100 <span className="text-xl font-medium text-gray-400">/ month</span></p>
                 <ul className="mt-8 space-y-4 text-gray-200">
                   <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> 100 prompts / month</li>
                   <li className="flex items-center gap-3"><CheckIcon className="h-6 w-6 text-purple-400" /> Advanced optimization</li>
