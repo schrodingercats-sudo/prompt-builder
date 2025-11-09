@@ -26,6 +26,14 @@ export class AuthService {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       return this.mapFirebaseUser(userCredential.user);
     } catch (error: any) {
+      // Provide user-friendly error messages
+      if (error.code === 'auth/email-already-in-use') {
+        throw new Error('This email is already registered. Please sign in instead or use a different email.');
+      } else if (error.code === 'auth/weak-password') {
+        throw new Error('Password is too weak. Please use at least 6 characters.');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('Invalid email address format.');
+      }
       throw new Error(error.message);
     }
   }
@@ -37,6 +45,16 @@ export class AuthService {
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       return this.mapFirebaseUser(userCredential.user);
     } catch (error: any) {
+      // Provide user-friendly error messages
+      if (error.code === 'auth/invalid-credential' || error.code === 'auth/wrong-password') {
+        throw new Error('Incorrect email or password. Please try again or reset your password.');
+      } else if (error.code === 'auth/user-not-found') {
+        throw new Error('No account found with this email. Please sign up first.');
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error('Invalid email address format.');
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error('Too many failed attempts. Please try again later or reset your password.');
+      }
       throw new Error(error.message);
     }
   }

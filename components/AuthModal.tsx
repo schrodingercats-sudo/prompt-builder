@@ -160,8 +160,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
                   />
               </div>
             )}
-            {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-            {resetMessage && <p className="text-green-600 text-sm text-center">{resetMessage}</p>}
+            {error && (
+              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-red-700 text-sm text-center">{error}</p>
+              </div>
+            )}
+            {message && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-700 text-sm text-center">{message}</p>
+              </div>
+            )}
+            {resetMessage && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-green-700 text-sm text-center">{resetMessage}</p>
+              </div>
+            )}
             <button type="submit" className="w-full bg-gray-800 text-white font-semibold py-3 rounded-lg shadow-sm hover:bg-gray-900 transition-transform transform hover:scale-105">
                 {isResetMode ? 'Send Reset Email' : isSignUp ? 'Sign Up' : 'Login'}
             </button>
