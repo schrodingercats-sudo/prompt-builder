@@ -61,3 +61,51 @@ export interface LocalStorageData {
   prompts: SavedPrompt[];
   credits: CreditsState;
 }
+
+// Admin Panel Types
+export interface UserListItem {
+  id: string;
+  firebase_uid: string;
+  email: string;
+  displayName?: string;
+  signupDate: string;
+  subscriptionStatus: string;
+  credits: number;
+  emailVerified: boolean;
+  totalPrompts: number;
+}
+
+export interface PromptLogItem {
+  id: string;
+  userId: string;
+  userEmail: string;
+  title: string;
+  originalPrompt: string;
+  optimizedPrompt: string;
+  modelUsed: string;
+  createdAt: string;
+  isPublic: boolean;
+  originalLength: number;
+  optimizedLength: number;
+}
+
+export interface SubscriptionItem {
+  id: string;
+  userId: string;
+  userEmail: string;
+  displayName?: string;
+  plan: string;
+  paymentId: string;
+  startDate: string;
+  expiryDate: string | null;
+  status: string;
+}
+
+export interface PaymentItem {
+  id: string;
+  userId: string;
+  userEmail: string;
+  amount: number;
+  date: string;
+  status: string;
+}

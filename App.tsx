@@ -5,6 +5,7 @@ import CommunityPage from './components/CommunityPage';
 import MyPromptsPage from './components/MyPromptsPage';
 import PromptDetailPage from './components/PromptDetailPage';
 import SettingsPage from './components/SettingsPage';
+import AdminPanel from './components/admin/AdminPanel';
 import Sidebar from './components/Sidebar';
 import AuthModal from './components/AuthModal';
 import EmailVerificationModal from './components/EmailVerificationModal';
@@ -22,7 +23,8 @@ type PageState =
   | { name: 'community' }
   | { name: 'myPrompts' }
   | { name: 'promptDetail'; prompt: Prompt }
-  | { name: 'settings' };
+  | { name: 'settings' }
+  | { name: 'admin' };
 
 type InitialPrompt = {
   text: string;
@@ -291,6 +293,8 @@ const App: React.FC = () => {
       setPage({ name: 'myPrompts' });
     } else if (nav === 'Settings') {
       setPage({ name: 'settings' });
+    } else if (nav === 'Admin Panel') {
+      setPage({ name: 'admin' });
     }
     setIsSidebarOpen(false);
   }, []);
@@ -351,6 +355,8 @@ const App: React.FC = () => {
         return <PromptDetailPage currentUser={currentUser} prompt={page.prompt} onNavigateBack={handleNavigateToCommunity} />;
       case 'settings':
         return <SettingsPage currentUser={currentUser!} onDeleteAccount={handleDeleteAccount} onSubscriptionChange={handleUpgradeSuccess} />;
+      case 'admin':
+        return <AdminPanel currentUser={currentUser!} onNavigateBack={() => setPage({ name: 'dashboard' })} />;
       default:
         return <Dashboard key={dashboardKey} initialPrompt={initialPrompt} credits={credits} onUseCredit={handleUseCredit} currentUser={currentUser!} />;
     }

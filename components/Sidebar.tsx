@@ -112,6 +112,10 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav,
   ];
 
   const userMenuItems = [
+    ...(currentUser.email === 'pratham.solanki30@gmail.com' 
+      ? [{ name: 'Admin Panel', icon: <SettingsIcon className="h-5 w-5" /> }] 
+      : []
+    ),
     { name: 'Settings', icon: <SettingsIcon className="h-5 w-5" /> },
     { name: 'Sign Out', icon: <LogoutIcon className="h-5 w-5" />, isDestructive: true },
   ];
@@ -119,6 +123,9 @@ const Sidebar: React.FC<SidebarProps> = ({ currentUser, activeNav, setActiveNav,
   const handleUserMenuClick = (itemName: string) => {
     setIsUserMenuOpen(false);
     switch (itemName) {
+        case 'Admin Panel':
+            setActiveNav('Admin Panel');
+            break;
         case 'Settings':
             setActiveNav('Settings');
             break;
