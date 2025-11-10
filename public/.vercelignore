@@ -1,0 +1,4 @@
+# Don't ignore these files
+!sitemap.xml
+!robots.txt
+!google*.html
