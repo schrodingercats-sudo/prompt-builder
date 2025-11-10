@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CloseIcon, CheckIcon, SparklesIcon, CreditCardIcon } from './Icons';
 import { razorpayService, SUBSCRIPTION_PLANS, SubscriptionPlan } from '../services/razorpayService';
 import { databaseService } from '../services/databaseService';
+import { emailService } from '../services/emailService';
 import { AuthUser } from '../services/authService';
 
 interface UpgradeModalProps {
@@ -50,12 +51,30 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, currentUse
             subscription_expires_at: expiryDate.toISOString()
           });
 
+          // Send payment receipt email
+          try {
+            await emailService.sendPaymentReceipt({
+              userEmail: currentUser.email,
+              userName: currentUser.displayName || currentUser.email.split('@')[0],
+              paymentId: response.razorpay_payment_id,
+              amount: selectedPlan.price * 100, // Convert to paise
+              currency: 'INR',
+              paymentDate: new Date().toISOString(),
+              expiryDate: expiryDate.toISOString(),
+              planName: selectedPlan.name
+            });
+            console.log('Payment receipt email sent successfully');
+          } catch (emailError) {
+            console.error('Failed to send payment receipt email:', emailError);
+            // Don't fail the whole process if email fails
+          }
+
           // Success!
           if (onUpgradeSuccess) {
             onUpgradeSuccess();
           }
           
-          alert('🎉 Welcome to Promptify Pro! Your subscription is now active.');
+          alert('🎉 Welcome to Promptimzer Pro! Your subscription is now active. Check your email for the receipt.');
           onClose();
         } catch (dbError) {
           console.error('Failed to update subscription in database:', dbError);
