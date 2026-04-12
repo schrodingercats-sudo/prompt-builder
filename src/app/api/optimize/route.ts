@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       : [textPart];
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash',
       contents: { parts },
       config: {
         systemInstruction,
@@ -80,8 +80,24 @@ export async function POST(request: NextRequest) {
 
     const result = JSON.parse(jsonText);
     return NextResponse.json(result);
-  } catch (error) {
-    console.error('Error calling Gemini API:', error);
+  } catch (error: unknown) {
+    const err = error as { status?: number; message?: string };
+    console.error('Error calling Gemini API:', err.message || error);
+
+    if (err.status === 429 || (err.message && err.message.includes('429'))) {
+      return NextResponse.json(
+        { error: 'Rate limit exceeded. Please wait a moment and try again.' },
+        { status: 429 }
+      );
+    }
+
+    if (err.status === 403 || (err.message && err.message.includes('403'))) {
+      return NextResponse.json(
+        { error: 'API key does not have access to this model.' },
+        { status: 403 }
+      );
+    }
+
     return NextResponse.json(
       { error: 'Failed to optimize prompt. Please try again.' },
       { status: 500 }
