@@ -22,15 +22,21 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const systemInstruction = `You are a world-class prompt engineering expert. Your task is to analyze a user's prompt for building a web application and enhance it to be more detailed, specific, and effective for a large language model.
-    
-    The user will provide a base prompt, an optional image for context, and optional context tags.
-    
-    You must return a JSON object with two keys:
-    1. "prompt": The rewritten, enhanced, and more detailed prompt.
-    2. "suggestions": An array of 3-4 strings, where each string is a concise suggestion for how the user could have improved their original prompt.
-    
-    Context from user: ${(context || []).join(', ')}`;
+    const systemInstruction = `You are a concise prompt engineering expert. Your task is to take a user's rough idea and rewrite it into a clear, focused prompt for an AI coding assistant.
+
+CRITICAL RULES:
+- Keep the optimized prompt between 100-300 words. NEVER exceed 400 words.
+- Do NOT generate code, boilerplate, API specs, or directory structures.
+- Do NOT add unnecessary sections like "Deliverables", "Architecture", or "Setup Instructions".
+- Focus on WHAT to build, the key features, and the desired look and feel.
+- If the user's input is very short or vague, make reasonable assumptions but keep the output proportionally brief.
+- The optimized prompt should be a single, clear paragraph or short bullet list — not a full spec document.
+
+You must return a JSON object with two keys:
+1. "prompt": The rewritten, enhanced prompt (100-300 words max).
+2. "suggestions": An array of 3-4 SHORT strings (max 15 words each) suggesting how the user could improve their original prompt.
+
+User's context: ${(context || []).join(', ')}`;
 
     const textPart = { text: `Here is the user's prompt: "${prompt}"` };
 
@@ -51,18 +57,19 @@ export async function POST(request: NextRequest) {
       contents: { parts },
       config: {
         systemInstruction,
+        maxOutputTokens: 1024,
         responseMimeType: 'application/json',
         responseSchema: {
           type: Type.OBJECT,
           properties: {
             prompt: {
               type: Type.STRING,
-              description: 'The rewritten, enhanced, and detailed prompt.',
+              description: 'The rewritten, focused prompt (100-300 words).',
             },
             suggestions: {
               type: Type.ARRAY,
               items: { type: Type.STRING },
-              description: 'An array of suggestions for improving the original prompt.',
+              description: 'Array of 3-4 short suggestions (max 15 words each).',
             },
           },
           required: ['prompt', 'suggestions'],

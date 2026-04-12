@@ -129,14 +129,14 @@ const FAQItem: React.FC<{ q: string; a: string }> = ({ q, a }) => {
 
 const BrandCarousel: React.FC = () => {
   const logos = [
-    { id: "logo-1", description: "Astro", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/astro-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-2", description: "Figma", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/figma-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-3", description: "Next.js", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/nextjs-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-4", description: "React", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/react-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-5", description: "Shadcn UI", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/shadcn-ui-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-6", description: "Supabase", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/supabase-wordmark.svg", className: "h-7 w-auto" },
-    { id: "logo-7", description: "Tailwind CSS", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/tailwind-wordmark.svg", className: "h-4 w-auto" },
-    { id: "logo-8", description: "Vercel", image: "https://deifkwefumgah.cloudfront.net/shadcnblocks/block/logos/vercel-wordmark.svg", className: "h-7 w-auto" },
+    { id: "logo-1", description: "Vercel", image: "https://cdn.simpleicons.org/vercel/000", className: "h-8 w-auto" },
+    { id: "logo-2", description: "Next.js", image: "https://cdn.simpleicons.org/nextdotjs/000", className: "h-8 w-auto" },
+    { id: "logo-3", description: "React", image: "https://cdn.simpleicons.org/react/61DAFB", className: "h-8 w-auto" },
+    { id: "logo-4", description: "Figma", image: "https://cdn.simpleicons.org/figma/F24E1E", className: "h-8 w-auto" },
+    { id: "logo-5", description: "Supabase", image: "https://cdn.simpleicons.org/supabase/3FCF8E", className: "h-8 w-auto" },
+    { id: "logo-6", description: "Tailwind CSS", image: "https://cdn.simpleicons.org/tailwindcss/06B6D4", className: "h-8 w-auto" },
+    { id: "logo-7", description: "TypeScript", image: "https://cdn.simpleicons.org/typescript/3178C6", className: "h-8 w-auto" },
+    { id: "logo-8", description: "Firebase", image: "https://cdn.simpleicons.org/firebase/DD2C00", className: "h-8 w-auto" },
   ];
 
   const duplicatedLogos = [...logos, ...logos];
@@ -327,6 +327,7 @@ Users begin their journey with a welcoming landing page that guides them through
                 <textarea
                   value={promptText}
                   onChange={(e) => setPromptText(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleStart(); } }}
                   placeholder="e.g., A modern dashboard with charts and a data table"
                   className="w-full h-28 p-4 text-base text-gray-800 placeholder-gray-400 border-none resize-none focus:ring-0 bg-transparent"
                 />
