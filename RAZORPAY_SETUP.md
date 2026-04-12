@@ -24,8 +24,8 @@ Promptify now uses Razorpay for secure payment processing. Users can upgrade to 
 
 Add these to your `.env.local` (already done):
 ```env
-VITE_RAZORPAY_KEY_ID=rzp_live_RQ6NpjJhLhsluu
-VITE_RAZORPAY_KEY_SECRET=hZoVIE2qPDIKO1zg5vj25QRH
+VITE_RAZORPAY_KEY_ID=your api
+VITE_RAZORPAY_KEY_SECRET=your api
 ```
 
 ### 2. Vercel Environment Variables
@@ -34,8 +34,8 @@ Add the same variables in Vercel Dashboard:
 1. Go to your project settings
 2. Navigate to Environment Variables
 3. Add:
-   - `VITE_RAZORPAY_KEY_ID` = `rzp_live_RQ6NpjJhLhsluu`
-   - `VITE_RAZORPAY_KEY_SECRET` = `hZoVIE2qPDIKO1zg5vj25QRH`
+   - `VITE_RAZORPAY_KEY_ID` = `your api`
+   - `VITE_RAZORPAY_KEY_SECRET` = `your api
 4. Apply to Production, Preview, and Development
 
 ### 3. Database Migration
@@ -125,7 +125,7 @@ User gets unlimited credits
 ### Live Mode (Production)
 
 Your current keys are already live keys:
-- `rzp_live_RQ6NpjJhLhsluu`
+- `your api`
 
 **Important**: Test thoroughly in test mode before using live keys!
 
