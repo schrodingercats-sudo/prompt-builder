@@ -1,22 +1,22 @@
+'use client';
+
 import React, { useState, useCallback, useEffect } from 'react';
-import LandingPage from './components/LandingPage';
-import Dashboard from './components/Dashboard';
-import CommunityPage from './components/CommunityPage';
-import MyPromptsPage from './components/MyPromptsPage';
-import PromptDetailPage from './components/PromptDetailPage';
-import SettingsPage from './components/SettingsPage';
-import AdminPanel from './components/admin/AdminPanel';
-import Sidebar from './components/Sidebar';
-import AuthModal from './components/AuthModal';
-import EmailVerificationModal from './components/EmailVerificationModal';
-import UpgradeModal from './components/UpgradeModal';
-import { Prompt, CreditsState } from './types';
-import { LogoIcon } from './components/Icons';
-import { authService, AuthUser } from './services/authService';
-import { databaseService } from './services/databaseService';
-import { blacklistService } from './services/blacklistService';
-
-
+import LandingPage from '@/components/LandingPage';
+import Dashboard from '@/components/Dashboard';
+import CommunityPage from '@/components/CommunityPage';
+import MyPromptsPage from '@/components/MyPromptsPage';
+import PromptDetailPage from '@/components/PromptDetailPage';
+import SettingsPage from '@/components/SettingsPage';
+import AdminPanel from '@/components/admin/AdminPanel';
+import Sidebar from '@/components/Sidebar';
+import AuthModal from '@/components/AuthModal';
+import EmailVerificationModal from '@/components/EmailVerificationModal';
+import UpgradeModal from '@/components/UpgradeModal';
+import { Prompt, CreditsState } from '@/types';
+import { LogoIcon } from '@/components/Icons';
+import { authService, AuthUser } from '@/services/authService';
+import { databaseService } from '@/services/databaseService';
+import { blacklistService } from '@/services/blacklistService';
 
 type PageState =
   | { name: 'dashboard' }
@@ -33,7 +33,7 @@ type InitialPrompt = {
 
 const ADMIN_EMAIL = 'pratham.solanki30@gmail.com';
 
-const App: React.FC = () => {
+export default function App() {
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState<PageState>({ name: 'dashboard' });
@@ -52,18 +52,15 @@ const App: React.FC = () => {
   const isUserAdmin = currentUser?.email === ADMIN_EMAIL;
   const isProUser = subscriptionStatus === 'pro' || isUserAdmin;
 
-  // Initialize auth state listener
   useEffect(() => {
     const unsubscribe = authService.onAuthStateChanged((user) => {
       setCurrentUser(user);
       setIsLoading(false);
       
-      // Check email verification status
       if (user) {
         const verified = authService.isEmailVerified();
         setIsEmailVerified(verified);
         
-        // Show verification modal if not verified
         if (!verified) {
           setIsEmailVerificationModalOpen(true);
         }
@@ -76,7 +73,6 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!currentUser) return;
 
-    // Load subscription status
     const loadSubscription = async () => {
       try {
         const subStatus = await databaseService.getUserSubscriptionStatus(currentUser.id);
@@ -93,16 +89,11 @@ const App: React.FC = () => {
       return;
     }
 
-    // Load credits from database
     const loadCredits = async () => {
       try {
-        // First ensure user profile exists
         await databaseService.getOrCreateUserProfile(currentUser);
-
-        // Get current credits
         let userCredits = await databaseService.getUserCredits(currentUser.id);
 
-        // Check if credits need to be reset
         if (userCredits.resetTime && Date.now() > userCredits.resetTime) {
           userCredits = await databaseService.updateCredits(currentUser.id, {
             ...userCredits,
@@ -115,20 +106,15 @@ const App: React.FC = () => {
       } catch (error) {
         console.error("Database not set up yet, using localStorage fallback");
 
-        // Fallback to localStorage until database is set up
-        // Use Firebase UID instead of email for better persistence
         const creditsKey = `promptifyCredits_${currentUser.id}`;
         const oldCreditsKey = `promptifyCredits_${currentUser.email}`;
 
         try {
-          // Check for existing credits with new key (Firebase UID)
           let savedCreditsRaw = localStorage.getItem(creditsKey);
 
-          // If not found, check old key (email) and migrate
           if (!savedCreditsRaw) {
             const oldCreditsRaw = localStorage.getItem(oldCreditsKey);
             if (oldCreditsRaw) {
-              // Migrate from email-based to UID-based storage
               localStorage.setItem(creditsKey, oldCreditsRaw);
               localStorage.removeItem(oldCreditsKey);
               savedCreditsRaw = oldCreditsRaw;
@@ -162,7 +148,6 @@ const App: React.FC = () => {
   const handleUseCredit = useCallback(async () => {
     if (!currentUser || isUserAdmin) return;
     
-    // Block credit usage if email not verified
     if (!isEmailVerified) {
       setIsEmailVerificationModalOpen(true);
       throw new Error('Please verify your email before using credits.');
@@ -172,15 +157,12 @@ const App: React.FC = () => {
       const updatedCredits = await databaseService.useCredit(currentUser.id);
       setCredits(updatedCredits);
 
-      // Show upgrade modal if credits reach 0
       if (updatedCredits.count === 0) {
         setIsUpgradeModalOpen(true);
       }
     } catch (error) {
       console.error("Database not set up yet, using localStorage fallback");
 
-      // Fallback to localStorage behavior until database is set up
-      // Use Firebase UID instead of email for better persistence
       const creditsKey = `promptifyCredits_${currentUser.id}`;
       setCredits(prevCredits => {
         const newCount = Math.max(0, prevCredits.count - 1);
@@ -191,7 +173,6 @@ const App: React.FC = () => {
         };
         localStorage.setItem(creditsKey, JSON.stringify(newCredits));
 
-        // Show upgrade modal if credits reach 0
         if (newCount === 0) {
           setIsUpgradeModalOpen(true);
         }
@@ -217,7 +198,6 @@ const App: React.FC = () => {
     setCurrentUser(user);
     setIsAuthModalOpen(false);
     
-    // Check email verification
     const verified = authService.isEmailVerified();
     setIsEmailVerified(verified);
     
@@ -237,7 +217,6 @@ const App: React.FC = () => {
   }, []);
 
   const handleUpgradeSuccess = useCallback(async () => {
-    // Reload subscription status
     if (currentUser) {
       try {
         const subStatus = await databaseService.getUserSubscriptionStatus(currentUser.id);
@@ -302,19 +281,12 @@ const App: React.FC = () => {
   const handleDeleteAccount = useCallback(async () => {
     if (!currentUser) return;
     try {
-      // Add email to blacklist to prevent recreation
       blacklistService.addToBlacklist(currentUser.email);
 
-      // Clean up local storage data
       localStorage.removeItem(`savedPrompts_${currentUser.email}`);
       localStorage.removeItem(`promptifyCredits_${currentUser.email}`);
       localStorage.removeItem(`promptifyCredits_${currentUser.id}`);
 
-      // TODO: Clean up Supabase data when database is set up
-      // await databaseService.deleteUserData(currentUser.id);
-
-      // Firebase account deletion is handled in SettingsPage
-      // This function is called after successful deletion
       setCurrentUser(null);
       setPage({ name: 'dashboard' });
 
@@ -323,8 +295,6 @@ const App: React.FC = () => {
       console.error("Failed to clean up account data", e);
     }
   }, [currentUser]);
-
-
 
   if (isLoading) {
     return (
@@ -373,13 +343,12 @@ const App: React.FC = () => {
         setIsOpen={setIsSidebarOpen}
         credits={credits}
         onLogout={handleLogout}
-
       />
       <main className="flex-1 relative overflow-y-auto">
         <div className="md:hidden p-4 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white/80 backdrop-blur-sm z-10">
           <div className="flex items-center gap-2">
             <LogoIcon className="h-8 w-8" />
-            <span className="font-bold text-lg text-gray-800">Promptify</span>
+            <span className="font-bold text-lg text-gray-800">Promptimzer</span>
           </div>
           <button onClick={() => setIsSidebarOpen(true)} className="p-1">
             <svg className="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -403,6 +372,4 @@ const App: React.FC = () => {
       />
     </div>
   );
-};
-
-export default App;
+}
