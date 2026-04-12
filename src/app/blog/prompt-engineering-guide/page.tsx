@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     'ai prompt techniques',
   ],
   alternates: {
-    canonical: 'https://promptimizer-pi.vercel.app/blog/prompt-engineering-guide',
+    canonical: 'https://promptimzer.vercel.app/blog/prompt-engineering-guide',
   },
   openGraph: {
     title: 'Prompt Engineering Guide for Developers (2025)',
@@ -33,7 +33,7 @@ function JsonLd() {
     author: { '@type': 'Organization', name: 'Promptimzer' },
     publisher: { '@type': 'Organization', name: 'Promptimzer' },
     datePublished: '2025-01-10',
-    mainEntityOfPage: 'https://promptimizer-pi.vercel.app/blog/prompt-engineering-guide',
+    mainEntityOfPage: 'https://promptimzer.vercel.app/blog/prompt-engineering-guide',
   };
 
   return (

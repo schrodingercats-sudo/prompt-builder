@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     'prompt writing guide',
   ],
   alternates: {
-    canonical: 'https://promptimizer-pi.vercel.app/blog/how-to-write-better-ai-prompts',
+    canonical: 'https://promptimzer.vercel.app/blog/how-to-write-better-ai-prompts',
   },
   openGraph: {
     title: 'How to Write Better AI Prompts — Complete Guide',
@@ -33,7 +33,7 @@ function JsonLd() {
     author: { '@type': 'Organization', name: 'Promptimzer' },
     publisher: { '@type': 'Organization', name: 'Promptimzer' },
     datePublished: '2025-01-15',
-    mainEntityOfPage: 'https://promptimizer-pi.vercel.app/blog/how-to-write-better-ai-prompts',
+    mainEntityOfPage: 'https://promptimzer.vercel.app/blog/how-to-write-better-ai-prompts',
   };
 
   return (

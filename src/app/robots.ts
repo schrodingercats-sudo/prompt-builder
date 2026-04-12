@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/admin/'],
       },
     ],
-    sitemap: 'https://promptimizer-pi.vercel.app/sitemap.xml',
+    sitemap: 'https://promptimzer.vercel.app/sitemap.xml',
   };
 }
