@@ -269,7 +269,7 @@ export class EmailService {
     </div>
 
     <div style="text-align: center;">
-      <a href="https://promptimzer.vercel.app/" class="button">Start Using Pro Features</a>
+      <a href="https://promptimizer-pi.vercel.app/" class="button">Start Using Pro Features</a>
     </div>
 
     <div class="footer">
@@ -325,7 +325,7 @@ YOUR PRO FEATURES
 ✓ Save unlimited prompts
 ✓ Community access
 
-Start using your Pro features: https://promptimzer.vercel.app/
+Start using your Pro features: https://promptimizer-pi.vercel.app/
 
 Need help? Contact us at support@promptimzer.com
 
@@ -366,7 +366,7 @@ This is an automated receipt. Please keep it for your records.
         <li>Priority support</li>
         <li>And much more!</li>
       </ul>
-      <a href="https://promptimzer.vercel.app/" class="button">Get Started</a>
+      <a href="https://promptimizer-pi.vercel.app/" class="button">Get Started</a>
       <p>If you have any questions, feel free to reach out to us at support@promptimzer.com</p>
       <p>Happy optimizing!<br>The Promptimzer Team</p>
     </div>

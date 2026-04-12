@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     'how to use chatgpt effectively',
   ],
   alternates: {
-    canonical: 'https://promptimzer.vercel.app/blog/chatgpt-prompt-tips',
+    canonical: 'https://promptimizer-pi.vercel.app/blog/chatgpt-prompt-tips',
   },
   openGraph: {
     title: '15 ChatGPT Prompt Tips You Should Know',
@@ -32,7 +32,7 @@ function JsonLd() {
     author: { '@type': 'Organization', name: 'Promptimzer' },
     publisher: { '@type': 'Organization', name: 'Promptimzer' },
     datePublished: '2025-01-05',
-    mainEntityOfPage: 'https://promptimzer.vercel.app/blog/chatgpt-prompt-tips',
+    mainEntityOfPage: 'https://promptimizer-pi.vercel.app/blog/chatgpt-prompt-tips',
   };
 
   return (

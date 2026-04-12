@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     'ai prompt best practices',
   ],
   alternates: {
-    canonical: 'https://promptimzer.vercel.app/blog',
+    canonical: 'https://promptimizer-pi.vercel.app/blog',
   },
 };
 

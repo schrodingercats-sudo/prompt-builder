@@ -4,7 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://promptimzer.vercel.app"),
+  metadataBase: new URL("https://promptimizer-pi.vercel.app"),
   title: {
     default: "Promptimzer — Free AI Prompt Optimizer & Enhancer",
     template: "%s | Promptimzer",
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
     title: "Promptimzer — Free AI Prompt Optimizer & Enhancer",
     description:
       "Optimize your AI prompts for free. Promptimzer is an AI-powered prompt optimizer for ChatGPT, Claude, Gemini & more.",
-    url: "https://promptimzer.vercel.app",
+    url: "https://promptimizer-pi.vercel.app",
     images: [
       {
         url: "/og-image.png",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     google: "google3690ce1ff1168d6d",
   },
   alternates: {
-    canonical: "https://promptimzer.vercel.app",
+    canonical: "https://promptimizer-pi.vercel.app",
   },
   icons: {
     icon: "/favicon.png",
