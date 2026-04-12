@@ -1,6 +1,6 @@
 # 🚀 Promptify - AI Prompt Optimization Tool
 
-Transform your basic prompts into detailed, optimized instructions for AI development tools like Lovable AI, Cursor, v0, Replit, and Bolt AI.
+Transform your basic prompts into detailed, optimized instructions for AI development tools like Lovable AI, Cursor, v0, Replit, and Bolt AI
 
 ![Promptify Banner](https://github.com/schrodingercats-sudo/prompt-builder/assets/banner.png)
 
