@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     url: "https://promptimzer.vercel.app",
     images: [
       {
-        url: "/og-image.png",
+        url: "https://promptimzer.vercel.app/og-image.png",
         width: 1200,
         height: 630,
         alt: "Promptimzer — AI Prompt Optimizer",
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
     title: "Promptimzer — Free AI Prompt Optimizer",
     description:
       "Optimize your AI prompts for free. Get better responses from ChatGPT, Claude, Gemini & more.",
-    images: ["/og-image.png"],
+    images: ["https://promptimzer.vercel.app/og-image.png"],
   },
   robots: {
     index: true,
