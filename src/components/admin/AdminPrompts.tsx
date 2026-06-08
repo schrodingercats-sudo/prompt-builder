@@ -10,7 +10,7 @@ interface AdminPromptsProps {
   currentUser: AuthUser;
 }
 
-type FilterModel = 'all' | 'gemini-1.5-flash' | 'gemini-1.5-pro' | 'gemini-2.0-flash-exp';
+type FilterModel = 'all' | 'gemini-3.5-flash' | 'gemini-3.1-pro-preview' | 'gemini-1.5-flash' | 'gemini-1.5-pro' | 'gemini-2.0-flash-exp';
 
 const AdminPrompts: React.FC<AdminPromptsProps> = ({ currentUser }) => {
   const [prompts, setPrompts] = useState<PromptLogItem[]>([]);
@@ -249,9 +249,11 @@ const AdminPrompts: React.FC<AdminPromptsProps> = ({ currentUser }) => {
                 className="w-full px-3 md:px-4 py-2 text-sm md:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
               >
                 <option value="all">All Models</option>
-                <option value="gemini-1.5-flash">Gemini 1.5 Flash</option>
-                <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
-                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash</option>
+                <option value="gemini-3.5-flash">Gemini 3.5 Flash</option>
+                <option value="gemini-3.1-pro-preview">Gemini 3.1 Pro</option>
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Legacy)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Legacy)</option>
+                <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Legacy)</option>
               </select>
             </div>
           </div>

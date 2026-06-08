@@ -260,7 +260,7 @@ export class EmailService {
     <div class="features">
       <h3>Your Pro Features</h3>
       <div class="feature-item">Unlimited prompt optimizations</div>
-      <div class="feature-item">Access to all AI models (Gemini 1.5 Flash, Pro, 2.0)</div>
+      <div class="feature-item">Access to all AI models (Gemini 3.5 Flash, 3.1 Pro)</div>
       <div class="feature-item">Priority support</div>
       <div class="feature-item">Advanced prompt suggestions</div>
       <div class="feature-item">Image-based prompt optimization</div>
@@ -318,7 +318,7 @@ TOTAL AMOUNT PAID: ${formattedAmount}
 YOUR PRO FEATURES
 -----------------
 ✓ Unlimited prompt optimizations
-✓ Access to all AI models (Gemini 1.5 Flash, Pro, 2.0)
+✓ Access to all AI models (Gemini 3.5 Flash, 3.1 Pro)
 ✓ Priority support
 ✓ Advanced prompt suggestions
 ✓ Image-based prompt optimization

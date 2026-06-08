@@ -30,5 +30,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "nextjs-temp", "components", "services", "App.tsx", "main.tsx", "types.ts", "index.tsx"]
+  "exclude": ["node_modules"]
 }

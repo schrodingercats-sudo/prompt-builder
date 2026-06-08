@@ -49,10 +49,3 @@ next-env.d.ts
 # IDE
 .vscode/
 .idea/
-
-# temp scaffold
-/nextjs-temp/
-
-# old vite files
-/vite.config.ts
-.vercel
